@@ -1,26 +1,37 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
-@theme inline {
+@theme {
+  --color-electric-blue: #2DE1FC;
+  
+  /* අලුත් Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  /* Fonts */
+  --font-share-tech: var(--font-share-tech);
+  --font-base-neue: var(--font-base-neue);
+  --font-contrail: var(--font-contrail);
+  --font-gudlak: var(--font-gudlak);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* 🟢 LIGHT MODE (Default) */
+:root {
+  --background: #f0f0f0; /* ලා අළු පාටක් ඇහැට අමාරු නැති වෙන්න */
+  --foreground: #050505; /* තද කළු */
+}
+
+/* ⚫ DARK MODE */
+/* next-themes එකෙන් 'dark' කියන class එක HTML එකට වැටුණම මේක active වෙනවා */
+.dark {
+  --background: #050505;
+  --foreground: #ffffff;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Smooth Color Transition Effect */
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
