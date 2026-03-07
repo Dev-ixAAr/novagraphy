@@ -26,7 +26,7 @@ const baseNeue = localFont({
 });
 
 const contrail = localFont({
-  src: "./fonts/CONTRAIL-Regular.woff2",
+  src: "./fonts/Contrail-Regular.woff2",
   variable: "--font-contrail",
   display: "swap",
 });
