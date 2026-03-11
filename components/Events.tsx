@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Calendar, MapPin } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { EVENTS_DATA } from "@/data/content"; // 👈 මෙතනින් Import කරන්න
 
 const containerVariants: any = {
@@ -31,7 +32,7 @@ export function Events() {
 
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
           <div>
             <span className="font-share-tech text-electric-blue tracking-widest text-sm uppercase mb-2 block">
               (02) Experiences
@@ -40,6 +41,9 @@ export function Events() {
               Live <span className="text-electric-blue/80">Events</span>
             </h2>
           </div>
+          <Link href="/portfolio?category=events" className="font-base-neue uppercase text-sm text-gray-400 hover:text-electric-blue transition-colors duration-300 md:mb-4">
+            View Full Collection -&gt;
+          </Link>
         </div>
 
         {/* Grid */}
@@ -50,7 +54,7 @@ export function Events() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
-          {EVENTS_DATA.map((event) => (
+          {EVENTS_DATA.slice(0, 5).map((event) => (
             <motion.div
               key={event.id}
               variants={cardVariants}

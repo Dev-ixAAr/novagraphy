@@ -3,9 +3,11 @@
 import React, { Suspense } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ShoppingCart } from "lucide-react";
-import { PRODUCTS } from "@/data/content";
+import { ShoppingBag } from "lucide-react";
+import { motion } from "framer-motion";
+import { PRODUCTS } from "@/data/products";
 import { ProductModal } from "@/components/ProductModal";
+import { MinimalistLightbox } from "@/components/MinimalistLightbox";
 import { CartDrawer } from "@/components/CartDrawer";
 import { useCart } from "@/context/CartContext";
 import { Navbar } from "@/components/Navbar"; // 👈 Import Navbar
@@ -36,20 +38,23 @@ function ShopContent() {
       <Navbar />
       <CartDrawer />
       <ProductModal />
+      <MinimalistLightbox />
 
 
       {/* 2. Floating Cart Trigger (Specific to Shop Page) */}
-      <button
+      <motion.button
         onClick={toggleCart}
-        className="fixed bottom-8 right-8 md:bottom-12 md:right-12 z-50 h-16 w-16 bg-electric-blue rounded-full flex items-center justify-center text-black shadow-[0_0_30px_rgba(45,225,252,0.4)] hover:scale-110 transition-transform duration-300"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="fixed bottom-8 right-8 z-[100] flex items-center justify-center p-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.3)] cursor-pointer transition-colors bg-zinc-900 text-white hover:bg-black dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
       >
-        <ShoppingCart size={24} />
+        <ShoppingBag className="w-6 h-6" />
         {cartItems.length > 0 && (
-          <span className="absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold h-6 w-6 rounded-full flex items-center justify-center border-2 border-black">
+          <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-blue-500 rounded-full border-2 border-white dark:border-black">
             {cartItems.length}
           </span>
         )}
-      </button>
+      </motion.button>
 
       <div className="max-w-7xl mx-auto">
 
@@ -68,11 +73,13 @@ function ShopContent() {
           {PRODUCTS.map((product) => (
             <div
               key={product.id}
-              className="group cursor-pointer"
-              onClick={() => handleProductClick(product.id)}
+              className="group"
             >
               {/* Image Card */}
-              <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-white/5 border border-white/10 mb-6">
+              <div 
+                className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-white/5 border border-white/10 mb-6 cursor-pointer"
+                onClick={() => router.push(`/shop?selectedImageId=${product.id}`, { scroll: false })}
+              >
                 <Image
                   src={product.image}
                   alt={product.title}
@@ -81,15 +88,18 @@ function ShopContent() {
                 />
 
                 {/* Quick View Overlay */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <span className="font-share-tech text-white uppercase tracking-widest border border-white px-4 py-2 rounded-full hover:bg-white hover:text-black transition-colors">
+                <div 
+                  onClick={(e) => { e.stopPropagation(); handleProductClick(product.id); }}
+                  className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
+                >
+                  <span className="font-share-tech text-white uppercase tracking-widest border border-white px-4 py-2 rounded-full hover:bg-white hover:text-black transition-colors cursor-pointer">
                     Quick View
                   </span>
                 </div>
               </div>
 
               {/* Info */}
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start cursor-pointer" onClick={() => handleProductClick(product.id)}>
                 <div>
                   <h3 className="font-contrail text-2xl text-white uppercase group-hover:text-electric-blue transition-colors">
                     {product.title}
@@ -99,7 +109,7 @@ function ShopContent() {
                   </p>
                 </div>
                 <span className="font-share-tech text-lg text-white">
-                  ${product.price.toFixed(2)}
+                  ${product.basePrice.toFixed(2)}
                 </span>
               </div>
             </div>

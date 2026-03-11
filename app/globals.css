@@ -35,3 +35,11 @@ body {
   /* Smooth Color Transition Effect */
   transition: background-color 0.5s ease, color 0.5s ease;
 }
+
+/* Hide Navbar and fixed elements when Lightbox is Open */
+html.lightbox-open header,
+html.lightbox-open .fixed.bottom-4.right-4 {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.3s ease;
+}

@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Shirt, Hexagon, Layers, Box, Fingerprint } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 // Placeholder images - Replace with your local assets in /public/
 const IMAGES = {
@@ -57,6 +58,9 @@ export function BentoShowcase() {
               Digital <span className="text-gray-500">Forge</span>
             </h2>
           </div>
+          <Link href="/portfolio?category=identity" className="font-base-neue uppercase text-sm text-gray-400 hover:text-electric-blue transition-colors duration-300 md:mb-2">
+            View Full Collection -&gt;
+          </Link>
         </div>
 
         {/* --- MAIN GRID LAYOUT --- */}

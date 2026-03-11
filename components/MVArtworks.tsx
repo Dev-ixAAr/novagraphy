@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { motion, useMotionValue, animate } from "framer-motion";
 import { ArrowLeft, ArrowRight, Play } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { MV_ARTWORKS_DATA } from "@/data/content";
 
 export function MVArtworks() {
@@ -46,9 +47,14 @@ export function MVArtworks() {
             <span className="font-share-tech text-gray-500 tracking-widest text-sm uppercase mb-2 block">
               (03) Visual Gallery
             </span>
-            <h2 className="font-contrail text-4xl md:text-6xl lg:text-8xl uppercase text-foreground leading-none">
-              MV <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-white">ARTWORKS</span>
-            </h2>
+            <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-8">
+              <h2 className="font-contrail text-4xl md:text-6xl lg:text-8xl uppercase text-foreground leading-none">
+                MV <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-white">ARTWORKS</span>
+              </h2>
+              <Link href="/portfolio?category=mv-artworks" className="font-base-neue uppercase text-sm text-gray-400 hover:text-electric-blue transition-colors duration-300 mb-2 md:mb-4">
+                View Full Collection -&gt;
+              </Link>
+            </div>
           </div>
 
           <div className="flex gap-4 mt-6 md:mt-0">
@@ -77,7 +83,7 @@ export function MVArtworks() {
           whileTap={{ cursor: "grabbing" }}
           className="flex gap-8 md:gap-12"
         >
-          {MV_ARTWORKS_DATA.map((art) => (
+          {MV_ARTWORKS_DATA.slice(0, 5).map((art) => (
             <motion.div
               key={art.id}
               className="relative min-w-[280px] md:min-w-[400px] group"

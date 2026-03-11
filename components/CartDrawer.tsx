@@ -6,8 +6,16 @@ import { X, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 
+import { useRouter } from "next/navigation";
+
 export function CartDrawer() {
   const { isOpen, toggleCart, cartItems, removeFromCart, cartTotal } = useCart();
+  const router = useRouter();
+
+  const handleCheckoutNavigation = () => {
+    toggleCart(); // CRUCIAL: Close the side drawer immediately
+    router.push('/checkout'); // Navigate to the checkout route
+  };
 
   return (
     <AnimatePresence>
@@ -19,7 +27,7 @@ export function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={toggleCart}
-            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-md"
+            className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-md"
           />
 
           {/* 2. DRAWER PANEL */}
@@ -28,20 +36,20 @@ export function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed top-0 right-0 z-[70] h-full w-full max-w-md border-l border-white/10 bg-[#050505] shadow-2xl"
+            className="fixed top-0 right-0 z-[9999] h-full w-full max-w-md border-l border-white/10 dark:border-white/10 bg-white dark:bg-[#050505] shadow-2xl"
           >
             <div className="flex h-full flex-col">
               
               {/* HEADER */}
-              <div className="flex items-center justify-between border-b border-white/10 p-6">
+              <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 p-6">
                 <div className="flex items-center gap-3">
                   <ShoppingBag className="text-electric-blue" size={20} />
-                  <span className="font-contrail text-2xl uppercase text-white">Your Cart</span>
+                  <span className="font-contrail text-2xl uppercase text-black dark:text-white">Your Cart</span>
                   <span className="font-share-tech text-xs text-gray-500">({cartItems.length} ITEMS)</span>
                 </div>
                 <button 
                   onClick={toggleCart} 
-                  className="rounded-full p-2 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                  className="rounded-full p-2 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -75,10 +83,10 @@ export function CartDrawer() {
                         {/* Details */}
                         <div className="flex flex-1 flex-col justify-between">
                           <div>
-                            <h4 className="font-contrail text-lg text-white uppercase leading-none">{item.name}</h4>
-                            <div className="mt-1 flex gap-3 text-xs font-share-tech text-gray-400">
+                            <h4 className="font-contrail text-lg text-black dark:text-white uppercase leading-none">{item.name}</h4>
+                            <div className="mt-1 flex gap-3 text-xs font-share-tech text-gray-500 dark:text-gray-400">
                                <span>SIZE: {item.size}</span>
-                               <span className="w-px h-3 bg-white/20"></span>
+                               <span className="w-px h-3 bg-black/20 dark:bg-white/20"></span>
                                <span>COLOR: {item.color}</span>
                             </div>
                           </div>
@@ -102,18 +110,20 @@ export function CartDrawer() {
               </div>
 
               {/* FOOTER & CHECKOUT */}
-              <div className="border-t border-white/10 bg-black/20 p-6 backdrop-blur-xl">
+              <div className="border-t border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/20 p-6 backdrop-blur-xl">
                 <div className="mb-6 flex justify-between items-end">
-                   <span className="font-base-neue text-sm text-gray-400 uppercase tracking-widest">Subtotal</span>
-                   <span className="font-share-tech text-3xl text-white">${cartTotal.toFixed(2)}</span>
+                   <span className="font-base-neue text-sm text-gray-500 dark:text-gray-400 uppercase tracking-widest">Subtotal</span>
+                   <span className="font-share-tech text-3xl text-black dark:text-white">${cartTotal.toFixed(2)}</span>
                 </div>
                 
-                <button className="
+                <button 
+                  onClick={handleCheckoutNavigation}
+                  className="
                   group relative w-full overflow-hidden rounded-full 
-                  bg-white text-black py-4 
+                  bg-black dark:bg-white text-white dark:text-black py-4 
                   font-contrail text-xl uppercase tracking-wider
                   transition-all duration-300
-                  hover:bg-electric-blue hover:shadow-[0_0_40px_rgba(45,225,252,0.4)]
+                  hover:bg-electric-blue dark:hover:bg-electric-blue hover:text-black dark:hover:shadow-[0_0_40px_rgba(45,225,252,0.4)]
                 ">
                    <span className="relative z-10 flex items-center justify-center gap-2">
                      Proceed to Checkout <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />

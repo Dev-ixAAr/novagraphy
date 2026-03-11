@@ -5,7 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ShoppingBag } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -17,6 +18,10 @@ const navLinks = [
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { cartItems, toggleCart } = useCart();
+  
+  // Only show the global cart icon on the shop page or its subroutes
+  const isShopPage = pathname?.startsWith('/shop');
 
   return (
     <header className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-full max-w-5xl px-4 md:px-6">
@@ -116,6 +121,36 @@ export function Navbar() {
             </button>
           </div>
 
+          {/* --- CONDITIONALLY RENDER CART ICON (Only on Shop) --- */}
+          <AnimatePresence>
+            {isShopPage && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                onClick={toggleCart}
+                className="relative p-2 text-zinc-900 dark:text-white hover:text-electric-blue dark:hover:text-electric-blue transition-colors cursor-pointer"
+              >
+                <ShoppingBag size={20} />
+                <AnimatePresence>
+                  {cartItems.length > 0 && (
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      className="absolute top-0 right-0 h-4 w-4 rounded-full bg-electric-blue flex items-center justify-center border-2 border-white dark:border-black"
+                    >
+                      <span className="text-[9px] font-bold text-black leading-none">
+                        {cartItems.length}
+                      </span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          {/* --- MOBILE TOGGLE --- */}
           <button
             className="md:hidden text-zinc-900 dark:text-white transition-colors"
             onClick={() => setIsOpen(!isOpen)}
