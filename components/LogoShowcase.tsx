@@ -4,8 +4,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Hexagon, ArrowUpRight } from "lucide-react";
 import Image from "next/image";
-// ✅ Database type instead of mock data
-import type { LogoWork } from "@/lib/types/database";
+// ✅ Unified PortfolioItem type
+import type { PortfolioItem } from "@/lib/types/database";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -22,7 +22,7 @@ const cardVariants = {
 
 // ✅ Props type — data comes from Server Component
 type LogoShowcaseProps = {
-  logoWorks: LogoWork[];
+  logoWorks: PortfolioItem[];
 };
 
 export function LogoShowcase({ logoWorks }: LogoShowcaseProps) {
@@ -72,7 +72,7 @@ export function LogoShowcase({ logoWorks }: LogoShowcaseProps) {
               <div className="absolute bottom-0 left-0 w-full p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                 <div className="flex justify-between items-end">
                   <div>
-                    <span className="font-share-tech text-electric-blue text-xs mb-1 block">{item.category}</span>
+                    <span className="font-share-tech text-electric-blue text-xs mb-1 block">{item.subtitle || 'Identity'}</span>
                     <h3 className="font-contrail text-2xl text-white">{item.title}</h3>
                   </div>
                   <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center bg-white/10 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity">

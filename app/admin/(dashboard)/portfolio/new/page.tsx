@@ -1,8 +1,15 @@
+'use client';
+
 import { createPortfolioItem } from '../actions';
 import Link from 'next/link';
-import { ArrowLeft, Save, UploadCloud } from 'lucide-react';
+import { ArrowLeft, Save, UploadCloud, X } from 'lucide-react';
+import { useState } from 'react';
+import { CldUploadWidget } from 'next-cloudinary';
+import Image from 'next/image';
 
 export default function NewPortfolioPage() {
+  const [imageUrl, setImageUrl] = useState('');
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-10">
       <div className="flex items-center gap-4 mb-8">
@@ -16,6 +23,7 @@ export default function NewPortfolioPage() {
       </div>
 
       <form action={createPortfolioItem} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <input type="hidden" name="image" value={imageUrl} />
         
         {/* Main Details */}
         <div className="lg:col-span-2 space-y-6">
@@ -38,11 +46,12 @@ export default function NewPortfolioPage() {
                             name="category" 
                             required
                             className="w-full bg-[#0f1115] border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                            defaultValue=""
                         >
-                            <option value="" disabled selected>Select...</option>
-                            <option value="Live Event">Live Event</option>
-                            <option value="MV Artwork">MV Artwork</option>
-                            <option value="Logo">Logo</option>
+                            <option value="" disabled>Select...</option>
+                            <option value="events">Live Event</option>
+                            <option value="mv-artworks">MV Artwork</option>
+                            <option value="identity">Logo / Identity</option>
                         </select>
                     </div>
                     
@@ -58,16 +67,46 @@ export default function NewPortfolioPage() {
         <div className="space-y-6">
             <div className="bg-[#161920] border border-gray-800 rounded-xl p-6 space-y-6">
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-300">Image URL</label>
-                    <div className="flex gap-2">
-                        <input name="image" required type="text" className="flex-1 bg-[#0f1115] border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-600" placeholder="https://..." />
-                        <button type="button" className="px-3 bg-[#252a35] border border-gray-700 rounded-lg text-gray-300"><UploadCloud size={18} /></button>
-                    </div>
-                </div>
+                    <label className="text-sm font-medium text-gray-300">Image</label>
+                    
+                    {imageUrl && (
+                        <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-gray-800 mb-2">
+                            <Image 
+                                src={imageUrl} 
+                                alt="Preview" 
+                                fill 
+                                className="object-cover"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setImageUrl('')}
+                                className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black/70 rounded-md text-white transition-colors"
+                            >
+                                <X size={14} />
+                            </button>
+                        </div>
+                    )}
 
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-300">Sort Order</label>
-                    <input name="sortOrder" type="number" defaultValue={0} className="w-full bg-[#0f1115] border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
+                    <CldUploadWidget 
+                        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "novagraphy"}
+                        onSuccess={(result: any) => {
+                            if (result.info?.secure_url) {
+                                setImageUrl(result.info.secure_url);
+                            }
+                        }}
+                    >
+                        {({ open }) => (
+                            <button 
+                                type="button" 
+                                onClick={() => open()}
+                                className="w-full flex items-center justify-center gap-2 bg-[#252a35] hover:bg-[#2f3542] border border-gray-700 rounded-lg px-4 py-3 text-gray-300 transition-colors"
+                            >
+                                <UploadCloud size={18} />
+                                {imageUrl ? 'Change Image' : 'Upload Image'}
+                            </button>
+                        )}
+                    </CldUploadWidget>
+                    {!imageUrl && <p className="text-xs text-red-400 mt-1">Image is required</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -75,7 +114,11 @@ export default function NewPortfolioPage() {
                     <input name="className" type="text" className="w-full bg-[#0f1115] border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-600" placeholder="CSS classes" />
                 </div>
 
-                <button type="submit" className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-all mt-4">
+                <button 
+                    type="submit" 
+                    disabled={!imageUrl}
+                    className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium transition-all mt-4"
+                >
                     <Save size={18} /> Save Item
                 </button>
             </div>

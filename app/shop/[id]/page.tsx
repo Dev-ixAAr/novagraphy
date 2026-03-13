@@ -1,5 +1,6 @@
 // app/shop/[id]/page.tsx
 // ✅ Server Component
+import type { Metadata } from "next";
 import { getProductById, getProducts } from "@/lib/actions/products";
 import { notFound } from "next/navigation";
 import ProductDetail from "./product-detail";
@@ -10,6 +11,32 @@ export async function generateStaticParams() {
   return products.map((product) => ({
     id: product.id,
   }));
+}
+
+// Dynamic SEO metadata per product
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const product = await getProductById(id);
+
+  if (!product) {
+    return { title: "Product Not Found" };
+  }
+
+  return {
+    title: product.title,
+    description: `[INSERT_SHOP_PRODUCT_DESCRIPTION_PREFIX] ${product.title}`,
+    openGraph: {
+      title: `${product.title} | NOVAGRAPHY Shop`,
+      description: `[INSERT_SHOP_PRODUCT_OG_DESCRIPTION_PREFIX] ${product.title}`,
+      images: product.image
+        ? [{ url: product.image, width: 1200, height: 630, alt: product.title }]
+        : [],
+    },
+  };
 }
 
 export default async function ProductPage({

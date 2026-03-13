@@ -4,8 +4,9 @@ import { Plus, Trash2, ImageIcon, Disc } from 'lucide-react';
 import { deleteMvArtwork } from './actions';
 
 export default async function MvArtworksPage() {
-  const artworks = await prisma.mvArtwork.findMany({
-    orderBy: { sortOrder: 'asc' },
+  const artworks = await prisma.portfolioItem.findMany({
+    where: { category: 'mv-artworks' },
+    orderBy: { createdAt: 'desc' },
   });
 
   return (
@@ -45,15 +46,15 @@ export default async function MvArtworksPage() {
                 <tr key={art.id} className="hover:bg-[#1c2029] transition-colors group">
                     <td className="px-6 py-4 w-24">
                     <div className="w-16 h-16 rounded-lg bg-[#0f1115] border border-gray-800 overflow-hidden flex items-center justify-center">
-                        {art.img ? (
-                        <img src={art.img} alt={art.title} className="w-full h-full object-cover" />
+                        {art.image ? (
+                        <img src={art.image} alt={art.title} className="w-full h-full object-cover" />
                         ) : (
                         <Disc className="text-gray-600 w-6 h-6" />
                         )}
                     </div>
                     </td>
                     <td className="px-6 py-4 font-medium text-white">{art.title}</td>
-                    <td className="px-6 py-4">{art.artist}</td>
+                    <td className="px-6 py-4">{art.subtitle || '-'}</td>
                     <td className="px-6 py-4 text-white font-mono">{art.sortOrder}</td>
                     <td className="px-6 py-4 text-right">
                     <form action={deleteMvArtwork.bind(null, art.id)}>

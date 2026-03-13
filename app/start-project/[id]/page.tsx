@@ -1,7 +1,31 @@
+import type { Metadata } from "next";
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { CheckCircle2, ArrowLeft, Send } from 'lucide-react';
 import Link from 'next/link';
+
+// Dynamic SEO metadata per service package
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const pkg = await prisma.servicePackage.findUnique({ where: { id } });
+
+  if (!pkg) {
+    return { title: "Package Not Found" };
+  }
+
+  return {
+    title: `${pkg.title} — ${pkg.category}`,
+    description: `[INSERT_PACKAGE_DESCRIPTION_PREFIX] ${pkg.title} (${pkg.category}) — ${pkg.price}`,
+    openGraph: {
+      title: `${pkg.title} | NOVAGRAPHY Services`,
+      description: `[INSERT_PACKAGE_OG_DESCRIPTION_PREFIX] ${pkg.title}`,
+    },
+  };
+}
 
 export default async function PackageDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

@@ -24,7 +24,7 @@ const PHILOSOPHY = [
     { title: "Humanity", desc: "Technology is cold. We inject soul into code to make it feel alive.", color: "bg-orange-500" },
 ];
 
-const FOUNDER = { name: "ALEX NOVA", role: "FOUNDER & CREATIVE DIRECTOR", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887" };
+const FOUNDER = { name: "AKASH HEWARTHNA", role: "FOUNDER & CREATIVE DIRECTOR", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887" };
 const TEAM = [
     { name: "SARA JIN", role: "ART DIRECTOR", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887" },
     { name: "KAITO M.", role: "TECH LEAD", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1887" },
@@ -217,7 +217,7 @@ function FounderSection() {
                     <div className="w-full md:w-1/2 relative group">
                         <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-foreground/10 shadow-2xl">
                             <Image src={FOUNDER.img} alt={FOUNDER.name} fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 ease-out" />
-                            <div className="absolute bottom-8 right-8 mix-blend-difference"><span className="font-gudlak text-6xl text-white opacity-80">Alex.</span></div>
+                            <div className="absolute bottom-8 right-8 mix-blend-difference"><span className="font-gudlak text-6xl text-white opacity-80">Akash.</span></div>
                         </div>
                     </div>
                     <div className="w-full md:w-1/2">

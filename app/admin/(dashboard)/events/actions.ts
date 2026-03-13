@@ -9,27 +9,37 @@ export async function createEvent(formData: FormData) {
   const date = formData.get('date') as string;
   const location = formData.get('location') as string;
   const image = formData.get('image') as string;
-  const category = formData.get('category') as string;
-  const sortOrder = parseInt(formData.get('sortOrder') as string) || 0;
 
-  await prisma.event.create({
+  const maxItem = await prisma.portfolioItem.findFirst({
+    where: { category: 'events' },
+    orderBy: { sortOrder: 'desc' },
+  });
+  const nextSortOrder = maxItem ? maxItem.sortOrder + 1 : 0;
+
+  await prisma.portfolioItem.create({
     data: {
       title,
-      date,
-      location,
+      subtitle: location,
       image,
-      category,
-      sortOrder,
+      category: 'events',
+      date,
+      sortOrder: nextSortOrder,
     },
   });
 
+  revalidatePath('/', 'layout');
+  revalidatePath('/portfolio');
   revalidatePath('/admin/events');
   redirect('/admin/events');
 }
 
 export async function deleteEvent(id: string) {
   try {
-    await prisma.event.delete({ where: { id } });
+    await prisma.portfolioItem.delete({
+      where: { id },
+    });
+    revalidatePath('/', 'layout');
+    revalidatePath('/portfolio');
     revalidatePath('/admin/events');
   } catch (error) {
     console.error('Failed to delete event:', error);

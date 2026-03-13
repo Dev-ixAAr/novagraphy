@@ -2,11 +2,11 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Calendar, MapPin } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-// ✅ Database type instead of mock data
-import type { Event } from "@/lib/types/database";
+// ✅ Unified PortfolioItem type
+import type { PortfolioItem } from "@/lib/types/database";
 
 const containerVariants: any = {
   hidden: { opacity: 0 },
@@ -27,7 +27,7 @@ const cardVariants: any = {
 
 // ✅ Props type — data comes from Server Component
 type EventsProps = {
-  events: Event[];
+  events: PortfolioItem[];
 };
 
 export function Events({ events }: EventsProps) {
@@ -60,7 +60,7 @@ export function Events({ events }: EventsProps) {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
-          {events.slice(0, 5).map((event) => (
+          {events.map((event) => (
             <motion.div
               key={event.id}
               variants={cardVariants}
@@ -80,20 +80,11 @@ export function Events({ events }: EventsProps) {
               <div className="absolute inset-0 flex flex-col justify-between p-8">
                 <div className="flex justify-between items-start opacity-0 -translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100">
                   <span className="bg-electric-blue/90 text-black font-share-tech text-xs px-2 py-1 rounded-sm uppercase">
-                    {event.category}
+                    {event.subtitle || 'Event'}
                   </span>
                 </div>
 
                 <div className="transform transition-transform duration-500 group-hover:-translate-y-2">
-                  {/* <div className="flex items-center gap-4 text-electric-blue mb-3 font-share-tech text-xs tracking-wider">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" /> {event.date}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3" /> {event.location}
-                    </span>
-                  </div> */}
-
                   <h3 className="font-contrail text-3xl md:text-4xl text-white leading-none uppercase mb-2">
                     {event.title}
                   </h3>

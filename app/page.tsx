@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Hero } from "@/components/Hero";
 import { Events } from "@/components/Events";
 import { MVArtworks } from "@/components/MVArtworks";
@@ -6,16 +7,26 @@ import { LatestProductsBento } from "@/components/LatestProductsBento";
 import { NavigationBlocks } from "@/components/NavigationBlocks";
 import { Footer } from "@/components/Footer";
 
-// ✅ Database actions
-import { getEvents, getMvArtworks, getLogoWorks } from "@/lib/actions/portfolio";
+export const metadata: Metadata = {
+  title: "[INSERT_HOME_TITLE]", // Uses template: "[INSERT_HOME_TITLE] | NOVAGRAPHY"
+  description: "[INSERT_HOME_DESCRIPTION]",
+  openGraph: {
+    title: "[INSERT_HOME_OG_TITLE]",
+    description: "[INSERT_HOME_OG_DESCRIPTION]",
+    images: [{ url: "[INSERT_HOME_OG_IMAGE_URL]", width: 1200, height: 630, alt: "[INSERT_HOME_OG_IMAGE_ALT]" }],
+  },
+};
+
+// ✅ Database actions — Home page uses "Latest" variants (take: 3, newest first)
+import { getLatestEvents, getLatestMvArtworks, getLatestLogoWorks } from "@/lib/actions/portfolio";
 import { getProducts, getProductDisplays } from "@/lib/actions/products";
 
 export default async function Home() {
-  // 🔥 All data fetched server-side in parallel
+  // 🔥 All data fetched server-side in parallel — 3 latest items per section
   const [events, mvArtworks, logoWorks, products, productDisplays] = await Promise.all([
-    getEvents(),
-    getMvArtworks(),
-    getLogoWorks(),
+    getLatestEvents(),
+    getLatestMvArtworks(),
+    getLatestLogoWorks(),
     getProducts(),
     getProductDisplays(),
   ]);

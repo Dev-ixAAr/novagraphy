@@ -4,8 +4,9 @@ import { Plus, Trash2, Calendar, MapPin, ImageIcon } from 'lucide-react';
 import { deleteEvent } from './actions';
 
 export default async function EventsPage() {
-  const events = await prisma.event.findMany({
-    orderBy: { sortOrder: 'asc' },
+  const events = await prisma.portfolioItem.findMany({
+    where: { category: 'events' },
+    orderBy: { createdAt: 'desc' },
   });
 
   return (
@@ -26,7 +27,7 @@ export default async function EventsPage() {
             <tr>
               <th className="px-6 py-4">Image</th>
               <th className="px-6 py-4">Event Details</th>
-              <th className="px-6 py-4">Category</th>
+              <th className="px-6 py-4">Date</th>
               <th className="px-6 py-4">Sort</th>
               <th className="px-6 py-4 text-right">Actions</th>
             </tr>
@@ -49,11 +50,12 @@ export default async function EventsPage() {
                     <td className="px-6 py-4">
                         <p className="font-medium text-white text-base">{event.title}</p>
                         <div className="flex flex-col gap-1 mt-1 text-xs text-gray-500">
-                            <span className="flex items-center gap-1"><Calendar size={12} /> {event.date}</span>
-                            <span className="flex items-center gap-1"><MapPin size={12} /> {event.location}</span>
+                            {event.subtitle && <span className="flex items-center gap-1"><MapPin size={12} /> {event.subtitle}</span>}
                         </div>
                     </td>
-                    <td className="px-6 py-4"><span className="bg-[#252a35] px-2 py-1 rounded text-xs text-gray-300">{event.category}</span></td>
+                    <td className="px-6 py-4">
+                        {event.date && <span className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /> {event.date}</span>}
+                    </td>
                     <td className="px-6 py-4 text-white font-mono">{event.sortOrder}</td>
                     <td className="px-6 py-4 text-right">
                     <form action={deleteEvent.bind(null, event.id)}>

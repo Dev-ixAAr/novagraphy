@@ -7,8 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { ArrowUpRight, X } from "lucide-react";
-// ✅ Database types instead of mock data
-import type { Event, MvArtwork, LogoWork } from "@/lib/types/database";
+// ✅ Unified PortfolioItem type
+import type { PortfolioItem } from "@/lib/types/database";
 
 const TABS = [
   { label: "ALL", value: "all" },
@@ -21,15 +21,13 @@ const TABS = [
 // PROPS TYPE — Data comes from Server Component
 // ============================================
 type PortfolioContentProps = {
-  events: Event[];
-  mvArtworks: MvArtwork[];
-  logoWorks: LogoWork[];
+  items: PortfolioItem[];
 };
 
 // ============================================
 // PORTFOLIO GRID (Inner Component)
 // ============================================
-function PortfolioGrid({ events, mvArtworks, logoWorks }: PortfolioContentProps) {
+function PortfolioGrid({ items }: PortfolioContentProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -66,47 +64,11 @@ function PortfolioGrid({ events, mvArtworks, logoWorks }: PortfolioContentProps)
   };
 
   // ============================================
-  // ✅ Build unified dataset from DATABASE props
-  //    (instead of imported mock data)
+  // ✅ Filter unified PortfolioItem[] by active tab
   // ============================================
-  let displayedItems: any[] = [];
-
-  if (activeTab === "all" || activeTab === "events") {
-    displayedItems = [
-      ...displayedItems,
-      ...events.map((item) => ({
-        ...item,
-        type: "events",
-        unifiedImage: item.image,
-        subtitle: `${item.date} • ${item.location}`,
-      })),
-    ];
-  }
-
-  if (activeTab === "all" || activeTab === "mv-artworks") {
-    displayedItems = [
-      ...displayedItems,
-      ...mvArtworks.map((item) => ({
-        ...item,
-        type: "mv-artworks",
-        unifiedImage: item.img, // "img" key matches database field
-        subtitle: item.artist,
-        category: "Visual Gallery",
-      })),
-    ];
-  }
-
-  if (activeTab === "all" || activeTab === "identity") {
-    displayedItems = [
-      ...displayedItems,
-      ...logoWorks.map((item) => ({
-        ...item,
-        type: "identity",
-        unifiedImage: item.image,
-        subtitle: item.category,
-      })),
-    ];
-  }
+  const displayedItems = activeTab === "all"
+    ? items
+    : items.filter((item) => item.category === activeTab);
 
   // Deterministic function to get grid spans based on index
   const getBentoSpan = (index: number) => {
@@ -162,7 +124,7 @@ function PortfolioGrid({ events, mvArtworks, logoWorks }: PortfolioContentProps)
           {displayedItems.length > 0 ? (
             displayedItems.map((item, index) => (
               <motion.div
-                key={`${item.type}-${item.id}`}
+                key={item.id}
                 layout
                 initial={{ opacity: 0, scale: 0.9, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -174,7 +136,7 @@ function PortfolioGrid({ events, mvArtworks, logoWorks }: PortfolioContentProps)
                 <div className="absolute inset-0 h-full w-full overflow-hidden">
                   <Image
                     src={
-                      item.unifiedImage ||
+                      item.image ||
                       "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop"
                     }
                     alt={item.title}
@@ -195,13 +157,13 @@ function PortfolioGrid({ events, mvArtworks, logoWorks }: PortfolioContentProps)
                   <div className="flex justify-between items-end w-full">
                     <div className="flex flex-col">
                       <span className="font-base-neue text-electric-blue text-xs uppercase tracking-widest mb-2 font-semibold">
-                        {item.category || item.type}
+                        {item.category}
                       </span>
                       <h3 className="font-contrail text-2xl md:text-3xl lg:text-4xl text-white leading-none uppercase drop-shadow-md">
                         {item.title}
                       </h3>
                       <p className="font-base-neue text-xs md:text-sm text-gray-300 mt-2 max-w-[80%] line-clamp-2">
-                        {item.subtitle || item.description}
+                        {item.subtitle || item.date}
                       </p>
                     </div>
 
@@ -254,7 +216,7 @@ function PortfolioGrid({ events, mvArtworks, logoWorks }: PortfolioContentProps)
 
                 <motion.img
                   src={
-                    selectedItem.unifiedImage ||
+                    selectedItem.image ||
                     "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop"
                   }
                   alt={selectedItem.title || "Portfolio Item"}
@@ -275,13 +237,9 @@ function PortfolioGrid({ events, mvArtworks, logoWorks }: PortfolioContentProps)
 }
 
 // ============================================
-// ✅ MAIN EXPORT — Receives props from Server Component
+// ✅ MAIN EXPORT — Receives unified PortfolioItem[] from Server Component
 // ============================================
-export default function PortfolioContent({
-  events,
-  mvArtworks,
-  logoWorks,
-}: PortfolioContentProps) {
+export default function PortfolioContent({ items }: PortfolioContentProps) {
   return (
     <main className="min-h-screen bg-background pt-32 pb-24 px-6 md:px-12 relative overflow-hidden">
       {/* Background Ambience */}
@@ -315,11 +273,7 @@ export default function PortfolioContent({
             </div>
           }
         >
-          <PortfolioGrid
-            events={events}
-            mvArtworks={mvArtworks}
-            logoWorks={logoWorks}
-          />
+          <PortfolioGrid items={items} />
         </Suspense>
       </div>
     </main>

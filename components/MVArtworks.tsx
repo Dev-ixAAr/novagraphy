@@ -5,12 +5,12 @@ import { motion, useMotionValue, animate } from "framer-motion";
 import { ArrowLeft, ArrowRight, Play } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-// ✅ Database type instead of mock data
-import type { MvArtwork } from "@/lib/types/database";
+// ✅ Unified PortfolioItem type
+import type { PortfolioItem } from "@/lib/types/database";
 
 // ✅ Props type — data comes from Server Component
 type MVArtworksProps = {
-  mvArtworks: MvArtwork[];
+  mvArtworks: PortfolioItem[];
 };
 
 export function MVArtworks({ mvArtworks }: MVArtworksProps) {
@@ -89,7 +89,7 @@ export function MVArtworks({ mvArtworks }: MVArtworksProps) {
           whileTap={{ cursor: "grabbing" }}
           className="flex gap-8 md:gap-12"
         >
-          {mvArtworks.slice(0, 5).map((art) => (
+          {mvArtworks.map((art, index) => (
             <motion.div
               key={art.id}
               className="relative min-w-[280px] md:min-w-[400px] group"
@@ -97,7 +97,7 @@ export function MVArtworks({ mvArtworks }: MVArtworksProps) {
             >
               <div className="relative aspect-square w-full rounded-lg overflow-hidden border border-white/10 shadow-2xl bg-black">
                 <Image
-                  src={art.img}
+                  src={art.image}
                   alt={art.title}
                   fill
                   className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
@@ -113,7 +113,7 @@ export function MVArtworks({ mvArtworks }: MVArtworksProps) {
               <div className="mt-4 flex justify-between items-end">
                 <div>
                   <h3 className="font-contrail text-2xl text-foreground uppercase">{art.title}</h3>
-                  <p className="font-base-neue text-sm text-gray-500">{art.artist}</p>
+                  <p className="font-base-neue text-sm text-gray-500">{art.subtitle}</p>
                 </div>
                 <span className="font-share-tech text-electric-blue text-xs border border-electric-blue/30 px-2 py-1 rounded">
                   MV-0{art.sortOrder}

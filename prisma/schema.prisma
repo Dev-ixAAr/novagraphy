@@ -93,13 +93,14 @@ model ProductDisplay {
 // 📸 EVENTS
 // ============================================
 model Event {
-  id        String @id @default(cuid())
+  id        String   @id @default(cuid())
   title     String
   date      String
   location  String
   image     String
   category  String
-  sortOrder Int    @default(0)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
 
   @@map("events")
 }
@@ -108,11 +109,12 @@ model Event {
 // 🎬 MV ARTWORKS
 // ============================================
 model MvArtwork {
-  id        String @id @default(cuid())
+  id        String   @id @default(cuid())
   title     String
   artist    String
   img       String
-  sortOrder Int    @default(0)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
 
   @@map("mv_artworks")
 }
@@ -121,12 +123,13 @@ model MvArtwork {
 // 🏷️ LOGO WORKS
 // ============================================
 model LogoWork {
-  id        String  @id @default(cuid())
+  id        String   @id @default(cuid())
   title     String
   category  String
   image     String
   className String?
-  sortOrder Int     @default(0)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
 
   @@map("logo_works")
 }

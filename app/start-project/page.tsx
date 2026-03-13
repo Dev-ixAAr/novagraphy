@@ -1,6 +1,17 @@
+import type { Metadata } from "next";
 import { prisma } from '@/lib/prisma';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import PricingCards from '@/components/PricingCards';
+
+export const metadata: Metadata = {
+  title: "[INSERT_START_PROJECT_TITLE]",
+  description: "[INSERT_START_PROJECT_DESCRIPTION]",
+  openGraph: {
+    title: "[INSERT_START_PROJECT_OG_TITLE]",
+    description: "[INSERT_START_PROJECT_OG_DESCRIPTION]",
+    images: [{ url: "[INSERT_START_PROJECT_OG_IMAGE_URL]", width: 1200, height: 630, alt: "[INSERT_START_PROJECT_OG_IMAGE_ALT]" }],
+  },
+};
 
 // ─────────────────────────────────────────────
 // Public Start‑Project / Pricing Page

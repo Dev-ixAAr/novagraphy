@@ -38,8 +38,54 @@ const gcGudlak = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "NOVAGRAPHY | Visual Experience",
-  description: "Awwwards-winning portfolio and visual experience.",
+  metadataBase: new URL("https://novagraphy.com"), // TODO: [INSERT_SITE_URL] — Replace with your production URL
+  title: {
+    default: "[INSERT_GLOBAL_TITLE_HERE]", // e.g. "NOVAGRAPHY — Premium Digital Design Agency"
+    template: "%s | NOVAGRAPHY",
+  },
+  description: "[INSERT_GLOBAL_DESCRIPTION]",
+  keywords: [
+    "[INSERT_KEYWORD_1]",
+    "[INSERT_KEYWORD_2]",
+    "[INSERT_KEYWORD_3]",
+    "[INSERT_KEYWORD_4]",
+    "[INSERT_KEYWORD_5]",
+  ],
+  authors: [{ name: "[INSERT_AUTHOR_NAME]" }],
+  creator: "[INSERT_CREATOR_NAME]",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "NOVAGRAPHY",
+    title: "[INSERT_OG_GLOBAL_TITLE]",
+    description: "[INSERT_OG_GLOBAL_DESCRIPTION]",
+    images: [
+      {
+        url: "[INSERT_OG_IMAGE_URL]", // e.g. /opengraph-image.png
+        width: 1200,
+        height: 630,
+        alt: "[INSERT_OG_IMAGE_ALT]",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "[INSERT_TWITTER_GLOBAL_TITLE]",
+    description: "[INSERT_TWITTER_GLOBAL_DESCRIPTION]",
+    images: ["[INSERT_TWITTER_IMAGE_URL]"],
+    creator: "[INSERT_TWITTER_HANDLE]", // e.g. @novagraphy
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({

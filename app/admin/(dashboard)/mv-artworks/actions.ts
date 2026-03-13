@@ -8,26 +8,36 @@ export async function createMvArtwork(formData: FormData) {
   const title = formData.get('title') as string;
   const artist = formData.get('artist') as string;
   const img = formData.get('img') as string;
-  const sortOrder = parseInt(formData.get('sortOrder') as string) || 0;
 
-  await prisma.mvArtwork.create({
+  const maxItem = await prisma.portfolioItem.findFirst({
+    where: { category: 'mv-artworks' },
+    orderBy: { sortOrder: 'desc' },
+  });
+  const nextSortOrder = maxItem ? maxItem.sortOrder + 1 : 0;
+
+  await prisma.portfolioItem.create({
     data: {
       title,
-      artist,
-      img,
-      sortOrder,
+      subtitle: artist,
+      image: img,
+      category: 'mv-artworks',
+      sortOrder: nextSortOrder,
     },
   });
 
+  revalidatePath('/', 'layout');
+  revalidatePath('/portfolio');
   revalidatePath('/admin/mv-artworks');
   redirect('/admin/mv-artworks');
 }
 
 export async function deleteMvArtwork(id: string) {
   try {
-    await prisma.mvArtwork.delete({
+    await prisma.portfolioItem.delete({
       where: { id },
     });
+    revalidatePath('/', 'layout');
+    revalidatePath('/portfolio');
     revalidatePath('/admin/mv-artworks');
   } catch (error) {
     console.error('Failed to delete artwork:', error);

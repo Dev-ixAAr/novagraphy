@@ -11,7 +11,12 @@ export async function createPortfolioItem(formData: FormData) {
   const category = formData.get('category') as string;
   const date = formData.get('date') as string;
   const className = formData.get('className') as string;
-  const sortOrder = parseInt(formData.get('sortOrder') as string) || 0;
+
+  const maxItem = await prisma.portfolioItem.findFirst({
+    where: { category },
+    orderBy: { sortOrder: 'desc' },
+  });
+  const nextSortOrder = maxItem ? maxItem.sortOrder + 1 : 0;
 
   await prisma.portfolioItem.create({
     data: {
@@ -21,10 +26,12 @@ export async function createPortfolioItem(formData: FormData) {
       category,
       date,
       className,
-      sortOrder,
+      sortOrder: nextSortOrder,
     },
   });
 
+  revalidatePath('/', 'layout');
+  revalidatePath('/portfolio');
   revalidatePath('/admin/portfolio');
   redirect('/admin/portfolio');
 }
@@ -34,6 +41,8 @@ export async function deletePortfolioItem(id: string) {
     await prisma.portfolioItem.delete({
       where: { id },
     });
+    revalidatePath('/', 'layout');
+    revalidatePath('/portfolio');
     revalidatePath('/admin/portfolio');
   } catch (error) {
     console.error('Failed to delete portfolio item:', error);
