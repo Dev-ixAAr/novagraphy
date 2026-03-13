@@ -4,7 +4,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Shirt, ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import { PRODUCT_DATA } from "@/data/content"; // Data Import
+// ✅ Database type instead of mock data
+import type { ProductDisplay } from "@/lib/types/database";
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -19,7 +20,12 @@ const cardVariants = {
     visible: { opacity: 1, scale: 1, transition: { duration: 0.6 } }
 };
 
-export function ProductShowcase() {
+// ✅ Props type — data comes from Server Component
+type ProductShowcaseProps = {
+  productDisplays: ProductDisplay[];
+};
+
+export function ProductShowcase({ productDisplays }: ProductShowcaseProps) {
     return (
         <section className="w-full bg-background py-24 px-6 md:px-12 border-t border-white/5 relative">
             {/* Background Gradient */}
@@ -46,11 +52,11 @@ export function ProductShowcase() {
                     viewport={{ once: true, margin: "-100px" }}
                     className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]"
                 >
-                    {PRODUCT_DATA.map((item) => (
+                    {productDisplays.map((item) => (
                         <motion.div
                             key={item.id}
                             variants={cardVariants}
-                            className={`relative group overflow-hidden rounded-3xl border border-white/10 bg-white/5 dark:bg-black/20 backdrop-blur-xl ${item.className}`}
+                            className={`relative group overflow-hidden rounded-3xl border border-white/10 bg-white/5 dark:bg-black/20 backdrop-blur-xl ${item.className || ''}`}
                         >
                             {/* Status Badge */}
                             {item.status && (

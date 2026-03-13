@@ -1,122 +1,16 @@
-"use client";
+// app/shop/page.tsx
+// ✅ Server Component — NO "use client"
+import { getProducts } from "@/lib/actions/products";
+import ShopContent from "./shop-content";
 
-import React, { Suspense } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { ShoppingBag } from "lucide-react";
-import { motion } from "framer-motion";
-import { PRODUCTS } from "@/data/products";
-import { ProductModal } from "@/components/ProductModal";
-import { MinimalistLightbox } from "@/components/MinimalistLightbox";
-import { CartDrawer } from "@/components/CartDrawer";
-import { useCart } from "@/context/CartContext";
-import { Navbar } from "@/components/Navbar"; // 👈 Import Navbar
-import { Footer } from "@/components/Footer";
+export const metadata = {
+  title: "Shop | Novagraphy",
+  description: "Premium streetwear and accessories",
+};
 
-// Wrap contents in Suspense because we use useSearchParams in the Modal
-export default function ShopPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <ShopContent />
-    </Suspense>
-  );
-}
+export default async function ShopPage() {
+  // 🔥 Database query — runs on server
+  const products = await getProducts();
 
-function ShopContent() {
-  const router = useRouter();
-  const { toggleCart, cartItems } = useCart();
-
-  const handleProductClick = (id: string) => {
-    // Update URL to trigger Modal without page reload
-    router.push(`/shop?productId=${id}`, { scroll: false });
-  };
-
-  return (
-    <div className="min-h-screen bg-background text-foreground pt-32 pb-24 px-6 md:px-12 relative">
-
-      {/* 1. Global Components */}
-      <Navbar />
-      <CartDrawer />
-      <ProductModal />
-      <MinimalistLightbox />
-
-
-      {/* 2. Floating Cart Trigger (Specific to Shop Page) */}
-      <motion.button
-        onClick={toggleCart}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="fixed bottom-8 right-8 z-[100] flex items-center justify-center p-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.3)] cursor-pointer transition-colors bg-zinc-900 text-white hover:bg-black dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-      >
-        <ShoppingBag className="w-6 h-6" />
-        {cartItems.length > 0 && (
-          <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-blue-500 rounded-full border-2 border-white dark:border-black">
-            {cartItems.length}
-          </span>
-        )}
-      </motion.button>
-
-      <div className="max-w-7xl mx-auto">
-
-        {/* Header */}
-        <div className="mb-16 border-b border-white/10 pb-8">
-          <span className="font-share-tech text-gray-500 text-xs tracking-widest uppercase mb-2 block">
-            Catalog 2024
-          </span>
-          <h1 className="font-contrail text-6xl md:text-8xl uppercase text-white leading-none">
-            All <span className="text-electric-blue">Products</span>
-          </h1>
-        </div>
-
-        {/* Product Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-          {PRODUCTS.map((product) => (
-            <div
-              key={product.id}
-              className="group"
-            >
-              {/* Image Card */}
-              <div 
-                className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-white/5 border border-white/10 mb-6 cursor-pointer"
-                onClick={() => router.push(`/shop?selectedImageId=${product.id}`, { scroll: false })}
-              >
-                <Image
-                  src={product.image}
-                  alt={product.title}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-
-                {/* Quick View Overlay */}
-                <div 
-                  onClick={(e) => { e.stopPropagation(); handleProductClick(product.id); }}
-                  className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
-                >
-                  <span className="font-share-tech text-white uppercase tracking-widest border border-white px-4 py-2 rounded-full hover:bg-white hover:text-black transition-colors cursor-pointer">
-                    Quick View
-                  </span>
-                </div>
-              </div>
-
-              {/* Info */}
-              <div className="flex justify-between items-start cursor-pointer" onClick={() => handleProductClick(product.id)}>
-                <div>
-                  <h3 className="font-contrail text-2xl text-white uppercase group-hover:text-electric-blue transition-colors">
-                    {product.title}
-                  </h3>
-                  <p className="font-base-neue text-sm text-gray-500 mt-1">
-                    {product.category}
-                  </p>
-                </div>
-                <span className="font-share-tech text-lg text-white">
-                  ${product.basePrice.toFixed(2)}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <Footer />
-    </div>
-  );
+  return <ShopContent products={products} />;
 }

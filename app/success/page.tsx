@@ -1,11 +1,19 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
 
 export default function OrderSuccessPage() {
+  const { clearCart } = useCart();
+
+  // ✅ Clear the cart only after the user returns from a successful PayHere payment
+  useEffect(() => {
+    clearCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <main className="min-h-[100dvh] flex flex-col items-center justify-center px-4 bg-zinc-50 dark:bg-black/95 text-zinc-900 dark:text-white selection:bg-blue-500/30">
       

@@ -5,13 +5,19 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { PRODUCTS } from "@/data/content";
+// ✅ Database type instead of mock data
+import type { ProductWithDetails } from "@/lib/types/database";
 
-export function LatestProductsBento() {
+// ✅ Props type — data comes from Server Component
+type LatestProductsBentoProps = {
+  products: ProductWithDetails[];
+};
+
+export function LatestProductsBento({ products }: LatestProductsBentoProps) {
   const router = useRouter();
 
   // Get only the first 4 items for the Home page
-  const featuredProducts = PRODUCTS.slice(0, 4);
+  const featuredProducts = products.slice(0, 4);
 
   const handleProductClick = (id: string) => {
     // Navigate to Shop page with the Query Param
@@ -64,7 +70,7 @@ export function LatestProductsBento() {
                 {/* Image */}
                 <div className="absolute inset-0 w-full h-full">
                   <Image
-                    src={product.image}
+                    src={product.colors?.[0]?.images?.[0] || product.image}
                     alt={product.title}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -86,7 +92,7 @@ export function LatestProductsBento() {
                     <div className="backdrop-blur-xl bg-black/60 border border-white/10 p-4 rounded-xl">
                       <h3 className="font-contrail text-xl md:text-2xl text-white uppercase">{product.title}</h3>
                       <div className="flex justify-between items-center mt-2">
-                        <span className="font-share-tech text-electric-blue">${product.price.toFixed(2)}</span>
+                        <span className="font-share-tech text-electric-blue">${product.basePrice.toFixed(2)}</span>
                         <span className="text-xs font-base-neue text-gray-300 flex items-center gap-1">
                           <ShoppingBag size={12} /> Shop Now
                         </span>

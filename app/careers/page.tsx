@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useTransition } from "react";
 import { motion, AnimatePresence, useMotionValue, useMotionTemplate, useSpring } from "framer-motion";
-import { ArrowUpRight, Globe, Zap, Cpu, Briefcase, MapPin, ChevronDown, Send, X } from "lucide-react";
-import Image from "next/image";
-import { Navbar } from "@/components/Navbar"; // 👈 Import Navbar
+import { ArrowUpRight, Globe, Zap, Cpu, Briefcase, MapPin, ChevronDown, Send, CheckCircle, Loader2 } from "lucide-react";
+import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { submitApplication } from "@/app/actions/application";
 
 // --- MOCK DATA ---
 const PERKS = [
@@ -21,12 +21,10 @@ const JOBS = [
 ];
 
 export default function CareersPage() {
-  const [selectedJob, setSelectedJob] = useState<typeof JOBS[0] | null>(null);
-
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-electric-blue selection:text-black overflow-x-hidden transition-colors duration-500">
-      <Navbar /> {/* 👈 Add Navbar at the top */}
-      {/* 1. CINEMATIC BACKGROUND */}
+      <Navbar />
+      {/* CINEMATIC BACKGROUND */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay" />
         <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-electric-blue/5 rounded-full blur-[150px] animate-pulse-slow" />
@@ -36,14 +34,11 @@ export default function CareersPage() {
       <div className="relative z-10">
         <ParallaxHero />
         <SpotlightPerks />
-        <JobsList onApply={(job) => setSelectedJob(job)} />
+        <JobsAccordion />
         <FAQSection />
       </div>
 
-      {/* 2. APPLICATION DRAWER (SLIDE-OVER) */}
-
-      <ApplicationDrawer job={selectedJob} onClose={() => setSelectedJob(null)} />
-      <Footer /> {/* 👈 Add Footer at the bottom */}
+      <Footer />
     </div>
   );
 }
@@ -60,7 +55,7 @@ function ParallaxHero() {
   const handleMouseMove = (e: React.MouseEvent) => {
     const { clientX, clientY, currentTarget } = e;
     const { width, height, left, top } = currentTarget.getBoundingClientRect();
-    mouseX.set((clientX - left - width / 2) * 0.05); // Subtle movement
+    mouseX.set((clientX - left - width / 2) * 0.05);
     mouseY.set((clientY - top - height / 2) * 0.05);
   };
 
@@ -70,7 +65,6 @@ function ParallaxHero() {
       onMouseMove={handleMouseMove}
       className="relative h-[85vh] flex items-center justify-center overflow-hidden"
     >
-      {/* Floating Elements (Background) */}
       <motion.div style={{ x: springX, y: springY }} className="absolute inset-0 z-0 flex items-center justify-center">
         <div className="w-[60vw] h-[60vw] border border-white/5 rounded-full opacity-20" />
         <div className="absolute w-[40vw] h-[40vw] border border-white/5 rounded-full opacity-30" />
@@ -148,44 +142,32 @@ function SpotlightCard({ children }: { children: React.ReactNode }) {
   );
 }
 
-// --- JOBS LIST (ACCORDION STYLE) ---
-function JobsList({ onApply }: { onApply: (job: any) => void }) {
+// ─── JOBS ACCORDION (INLINE EXPANSION) ──────────────────────────────────────
+function JobsAccordion() {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const toggle = (id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
+
   return (
     <section className="py-32 px-6 md:px-12">
       <div className="max-w-5xl mx-auto">
         <div className="mb-16 flex items-end justify-between border-b border-foreground/10 pb-8">
           <h2 className="font-contrail text-6xl text-foreground uppercase">Open Roles</h2>
           <span className="font-share-tech text-electric-blue text-xs border border-electric-blue/30 px-3 py-1 rounded-full">
-            03 POSITIONS
+            {String(JOBS.length).padStart(2, "0")} POSITIONS
           </span>
         </div>
 
         <div className="flex flex-col gap-4">
           {JOBS.map((job) => (
-            <div
+            <JobCard
               key={job.id}
-              className="group relative p-8 md:p-10 rounded-3xl border border-foreground/10 bg-foreground/5 dark:bg-white/5 hover:bg-foreground/10 dark:hover:bg-white/10 transition-all duration-500 cursor-pointer"
-              onClick={() => onApply(job)}
-            >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                  <h3 className="font-contrail text-3xl md:text-5xl text-foreground group-hover:text-electric-blue transition-colors duration-300">
-                    {job.title}
-                  </h3>
-                  <div className="flex gap-6 mt-3 font-share-tech text-xs text-foreground/50 uppercase tracking-widest">
-                    <span className="flex items-center gap-2"><MapPin size={12} /> {job.location}</span>
-                    <span className="flex items-center gap-2"><Briefcase size={12} /> {job.type}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-8">
-                  <span className="font-share-tech text-foreground text-lg hidden md:block">{job.salary}</span>
-                  <div className="w-12 h-12 rounded-full border border-foreground/20 flex items-center justify-center group-hover:bg-electric-blue group-hover:text-black group-hover:border-electric-blue transition-all duration-300">
-                    <ArrowUpRight size={20} />
-                  </div>
-                </div>
-              </div>
-            </div>
+              job={job}
+              isExpanded={expandedId === job.id}
+              onToggle={() => toggle(job.id)}
+            />
           ))}
         </div>
       </div>
@@ -193,80 +175,204 @@ function JobsList({ onApply }: { onApply: (job: any) => void }) {
   );
 }
 
-// --- APPLICATION DRAWER (SLIDE OVER) ---
-function ApplicationDrawer({ job, onClose }: { job: any, onClose: () => void }) {
+// ─── SINGLE JOB CARD (WITH INLINE FORM) ─────────────────────────────────────
+function JobCard({
+  job,
+  isExpanded,
+  onToggle,
+}: {
+  job: (typeof JOBS)[0];
+  isExpanded: boolean;
+  onToggle: () => void;
+}) {
   return (
-    <AnimatePresence>
-      {job && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm"
-          />
-
-          {/* Drawer */}
-          <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed top-0 right-0 z-50 h-full w-full max-w-2xl bg-background border-l border-foreground/10 shadow-2xl overflow-y-auto"
-          >
-            <div className="p-8 md:p-12">
-              <div className="flex justify-between items-start mb-12">
-                <div>
-                  <span className="font-share-tech text-foreground/50 text-xs uppercase tracking-widest">Applying For</span>
-                  <h2 className="font-contrail text-4xl text-foreground mt-2">{job.title}</h2>
-                </div>
-                <button onClick={onClose} className="p-2 rounded-full bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors">
-                  <X size={24} />
-                </button>
-              </div>
-
-              <form className="flex flex-col gap-8">
-                <div className="grid grid-cols-2 gap-6">
-                  <InputGroup label="First Name" />
-                  <InputGroup label="Last Name" />
-                </div>
-                <InputGroup label="Email Address" type="email" />
-                <InputGroup label="Portfolio URL" />
-                <InputGroup label="LinkedIn / GitHub" />
-
-                <div className="pt-8">
-                  <button className="w-full py-5 rounded-full bg-foreground text-background hover:bg-electric-blue hover:text-black font-contrail text-xl uppercase tracking-wider hover:shadow-[0_0_30px_rgba(45,225,252,0.4)] transition-all flex items-center justify-center gap-3">
-                    Submit Application <Send size={20} />
-                  </button>
-                </div>
-              </form>
+    <div
+      className={`
+        relative rounded-3xl border transition-all duration-500 overflow-hidden
+        ${isExpanded
+          ? "bg-[#16181d] border-electric-blue/20 shadow-[0_0_40px_-12px_rgba(45,225,252,0.12)]"
+          : "bg-foreground/5 dark:bg-white/5 border-foreground/10 hover:bg-foreground/10 dark:hover:bg-white/10"
+        }
+      `}
+    >
+      {/* ── Clickable Header ── */}
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full text-left p-8 md:p-10 cursor-pointer group"
+      >
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h3
+              className={`font-contrail text-3xl md:text-5xl transition-colors duration-300 ${
+                isExpanded ? "text-electric-blue" : "text-foreground group-hover:text-electric-blue"
+              }`}
+            >
+              {job.title}
+            </h3>
+            <div className="flex gap-6 mt-3 font-share-tech text-xs text-foreground/50 uppercase tracking-widest">
+              <span className="flex items-center gap-2">
+                <MapPin size={12} /> {job.location}
+              </span>
+              <span className="flex items-center gap-2">
+                <Briefcase size={12} /> {job.type}
+              </span>
             </div>
+          </div>
+
+          <div className="flex items-center gap-8">
+            <span className="font-share-tech text-foreground text-lg hidden md:block">
+              {job.salary}
+            </span>
+            <div
+              className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-300 ${
+                isExpanded
+                  ? "bg-electric-blue text-black border-electric-blue rotate-90"
+                  : "border-foreground/20 group-hover:bg-electric-blue group-hover:text-black group-hover:border-electric-blue"
+              }`}
+            >
+              <ArrowUpRight size={20} />
+            </div>
+          </div>
+        </div>
+      </button>
+
+      {/* ── Expandable Inline Form ── */}
+      <AnimatePresence initial={false}>
+        {isExpanded && (
+          <motion.div
+            key="form-panel"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+            className="overflow-hidden"
+          >
+            <InlineApplicationForm job={job} />
           </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
-function InputGroup({ label, type = "text" }: { label: string, type?: string }) {
+// ─── INLINE APPLICATION FORM ────────────────────────────────────────────────
+function InlineApplicationForm({ job }: { job: (typeof JOBS)[0] }) {
+  const [isPending, startTransition] = useTransition();
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formRef.current) return;
+
+    setError(null);
+    const formData = new FormData(formRef.current);
+
+    startTransition(async () => {
+      const result = await submitApplication(formData, job.title);
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        setError(result.error || "Something went wrong.");
+      }
+    });
+  };
+
+  return (
+    <div className="px-8 md:px-10 pb-10">
+      {/* Separator */}
+      <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-10" />
+
+      {submitted ? (
+        /* ── Success State ── */
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center justify-center text-center py-8"
+        >
+          <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-5">
+            <CheckCircle className="w-8 h-8 text-emerald-400" />
+          </div>
+          <h3 className="font-contrail text-2xl text-white mb-2">Application Sent!</h3>
+          <p className="font-base-neue text-gray-400 max-w-md text-sm leading-relaxed">
+            Thank you for applying for{" "}
+            <span className="text-electric-blue font-semibold">{job.title}</span>.
+            We&apos;ve sent a confirmation to your email. Our team will review your portfolio and reach out soon.
+          </p>
+        </motion.div>
+      ) : (
+        /* ── Form ── */
+        <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-7">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <InputGroup label="First Name" name="firstName" required />
+            <InputGroup label="Last Name" name="lastName" required />
+          </div>
+          <InputGroup label="Email Address" name="email" type="email" required />
+          <InputGroup label="Phone Number" name="phone" type="tel" required />
+          <InputGroup label="Portfolio URL (Optional)" name="portfolioUrl" />
+          <InputGroup label="LinkedIn / GitHub (Optional)" name="linkedinUrl" />
+
+          {error && (
+            <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-base-neue">
+              {error}
+            </div>
+          )}
+
+          <div className="pt-4">
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full py-4 rounded-full bg-white text-black hover:bg-electric-blue hover:text-black font-contrail text-lg uppercase tracking-wider hover:shadow-[0_0_30px_rgba(45,225,252,0.4)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  Submit Application <Send size={18} />
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}
+
+// ─── INPUT GROUP ────────────────────────────────────────────────────────────
+function InputGroup({
+  label,
+  name,
+  type = "text",
+  required = false,
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  required?: boolean;
+}) {
   return (
     <div className="relative group">
       <input
         type={type}
-        required
-        className="w-full bg-transparent border-b border-foreground/20 py-3 text-foreground font-base-neue focus:outline-none focus:border-electric-blue transition-colors peer placeholder-transparent"
+        name={name}
+        required={required}
+        className="w-full bg-transparent border-b border-gray-600/60 focus:border-electric-blue py-3 text-white font-base-neue focus:outline-none transition-colors peer placeholder-transparent"
         placeholder={label}
       />
-      <label className="absolute left-0 -top-3 text-xs text-foreground/50 font-share-tech uppercase tracking-widest transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-foreground/50 peer-placeholder-shown:top-3 peer-focus:-top-3 peer-focus:text-xs peer-focus:text-electric-blue">
+      <label className="absolute left-0 -top-3 text-xs text-gray-400 font-share-tech uppercase tracking-widest transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-placeholder-shown:top-3 peer-focus:-top-3 peer-focus:text-xs peer-focus:text-electric-blue">
         {label}
       </label>
     </div>
   );
 }
 
-// --- FAQ (Keep Simple) ---
+// --- FAQ ---
 function FAQSection() {
   const [open, setOpen] = useState<number | null>(null);
   const FAQS = [
@@ -283,7 +389,7 @@ function FAQSection() {
             <div key={i} className="border border-foreground/10 rounded-2xl bg-foreground/5 dark:bg-white/5 overflow-hidden">
               <button onClick={() => setOpen(open === i ? null : i)} className="w-full flex justify-between p-6 text-left">
                 <span className="font-base-neue text-foreground">{faq.q}</span>
-                <ChevronDown className={`text-foreground/50 transition-transform ${open === i ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`text-foreground/50 transition-transform ${open === i ? "rotate-180" : ""}`} />
               </button>
               <AnimatePresence>
                 {open === i && (

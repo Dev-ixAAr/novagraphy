@@ -2,13 +2,24 @@ import { Hero } from "@/components/Hero";
 import { Events } from "@/components/Events";
 import { MVArtworks } from "@/components/MVArtworks";
 import { LogoShowcase } from "@/components/LogoShowcase";
-import { ProductShowcase } from "@/components/ProductShowcase";
 import { LatestProductsBento } from "@/components/LatestProductsBento";
 import { NavigationBlocks } from "@/components/NavigationBlocks";
 import { Footer } from "@/components/Footer";
 
+// ✅ Database actions
+import { getEvents, getMvArtworks, getLogoWorks } from "@/lib/actions/portfolio";
+import { getProducts, getProductDisplays } from "@/lib/actions/products";
 
-export default function Home() {
+export default async function Home() {
+  // 🔥 All data fetched server-side in parallel
+  const [events, mvArtworks, logoWorks, products, productDisplays] = await Promise.all([
+    getEvents(),
+    getMvArtworks(),
+    getLogoWorks(),
+    getProducts(),
+    getProductDisplays(),
+  ]);
+
   return (
     <div className="relative w-full min-h-screen bg-background text-foreground selection:bg-electric-blue selection:text-black overflow-hidden transition-colors duration-500">
 
@@ -37,10 +48,10 @@ export default function Home() {
         {/* The entry point with 3D/Parallax effects */}
         <Hero />
 
-        <Events />
-        <MVArtworks />
-        <LogoShowcase />
-        <LatestProductsBento />
+        <Events events={events} />
+        <MVArtworks mvArtworks={mvArtworks} />
+        <LogoShowcase logoWorks={logoWorks} />
+        <LatestProductsBento products={products} />
         <NavigationBlocks />
         <Footer />
 

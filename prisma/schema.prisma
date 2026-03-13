@@ -1,0 +1,376 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// 🔐 ADMIN USER
+// ============================================
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("admin_users")
+}
+
+// ============================================
+// 🛍️ PRODUCT
+// ============================================
+model Product {
+  id          String   @id @default(cuid())
+  title       String
+  basePrice   Float
+  category    String
+  description String   @db.Text
+  image       String
+  status      String?
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  colors     ProductVariant[]
+  sizes      ProductSize[]
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+// ============================================
+// 🎨 PRODUCT VARIANT (Colors)
+// ============================================
+model ProductVariant {
+  id        String   @id @default(cuid())
+  name      String
+  hex       String?
+  images    String[] // PostgreSQL supports arrays natively ✅
+  productId String
+  sortOrder Int      @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_variants")
+}
+
+// ============================================
+// 📏 PRODUCT SIZE
+// ============================================
+model ProductSize {
+  id        String @id @default(cuid())
+  label     String
+  priceMod  Float  @default(0)
+  productId String
+  sortOrder Int    @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_sizes")
+}
+
+// ============================================
+// 🖼️ PRODUCT DISPLAY (Grid Cards)
+// ============================================
+model ProductDisplay {
+  id        String  @id @default(cuid())
+  title     String
+  price     String
+  status    String?
+  image     String
+  className String?
+  sortOrder Int     @default(0)
+
+  @@map("product_displays")
+}
+
+// ============================================
+// 📸 EVENTS
+// ============================================
+model Event {
+  id        String @id @default(cuid())
+  title     String
+  date      String
+  location  String
+  image     String
+  category  String
+  sortOrder Int    @default(0)
+
+  @@map("events")
+}
+
+// ============================================
+// 🎬 MV ARTWORKS
+// ============================================
+model MvArtwork {
+  id        String @id @default(cuid())
+  title     String
+  artist    String
+  img       String
+  sortOrder Int    @default(0)
+
+  @@map("mv_artworks")
+}
+
+// ============================================
+// 🏷️ LOGO WORKS
+// ============================================
+model LogoWork {
+  id        String  @id @default(cuid())
+  title     String
+  category  String
+  image     String
+  className String?
+  sortOrder Int     @default(0)
+
+  @@map("logo_works")
+}
+
+// ============================================
+// 📋 PORTFOLIO ITEM (Unified)
+// ============================================
+model PortfolioItem {
+  id        String   @id @default(cuid())
+  title     String
+  subtitle  String?
+  image     String
+  category  String
+  date      String?
+  className String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@map("portfolio_items")
+}
+
+// ============================================
+// 🛒 ORDER
+// ============================================
+model Order {
+  id          String   @id @default(cuid())
+  orderNumber String   @unique @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  address     String
+  city        String
+  state       String?
+  postalCode  String?
+  country     String   @default("US")
+  subtotal    Float
+  shipping    Float    @default(0)
+  tax         Float    @default(0)
+  totalAmount Float
+  status      OrderStatus @default(PENDING)
+  trackingNumber String?
+  paymentId   String?
+  isRead      Boolean     @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items OrderItem[]
+
+  @@index([email])
+  @@index([status])
+  @@map("orders")
+}
+
+// ============================================
+// 📦 ORDER ITEM
+// ============================================
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  name      String
+  color     String?
+  size      String?
+  price     Float
+  quantity  Int     @default(1)
+  image     String?
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CONFIRMED
+  PACKED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+// ============================================
+// 📅 TIMELINE
+// ============================================
+model TimelineEntry {
+  id        String @id @default(cuid())
+  year      String
+  title     String
+  desc      String @db.Text
+  sortOrder Int    @default(0)
+
+  @@map("timeline_entries")
+}
+
+// ============================================
+// 💡 PHILOSOPHY
+// ============================================
+model Philosophy {
+  id        String @id @default(cuid())
+  title     String
+  desc      String @db.Text
+  color     String
+  sortOrder Int    @default(0)
+
+  @@map("philosophies")
+}
+
+// ============================================
+// 👥 TEAM MEMBER
+// ============================================
+model TeamMember {
+  id        String  @id @default(cuid())
+  name      String
+  role      String
+  img       String
+  isFounder Boolean @default(false)
+  sortOrder Int     @default(0)
+
+  @@map("team_members")
+}
+
+// ============================================
+// 🎁 PERKS
+// ============================================
+model Perk {
+  id        String @id @default(cuid())
+  title     String
+  desc      String
+  icon      String
+  sortOrder Int    @default(0)
+
+  @@map("perks")
+}
+
+// ============================================
+// 💼 JOBS
+// ============================================
+model Job {
+  id        String   @id @default(cuid())
+  title     String
+  salary    String
+  type      String
+  location  String
+  dept      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([dept])
+  @@index([active])
+  @@map("jobs")
+}
+
+// ============================================
+// 📄 JOB APPLICATIONS
+// ============================================
+model JobApplication {
+  id           String   @id @default(cuid())
+  jobTitle     String
+  firstName    String
+  lastName     String
+  email        String
+  phone        String
+  portfolioUrl String?
+  linkedinUrl  String?
+  status       String   @default("PENDING")
+  isRead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([status])
+  @@index([email])
+  @@map("job_applications")
+}
+
+// ============================================
+// 🚀 EVOLUTION POINTS
+// ============================================
+model EvolutionPoint {
+  id        String @id @default(cuid())
+  title     String
+  desc      String @db.Text
+  number    String
+  sortOrder Int    @default(0)
+
+  @@map("evolution_points")
+}
+
+// ============================================
+// 🏢 STUDIO FEATURES
+// ============================================
+model StudioFeature {
+  id        String @id @default(cuid())
+  title     String
+  desc      String @db.Text
+  icon      String
+  sortOrder Int    @default(0)
+
+  @@map("studio_features")
+}
+
+// ============================================
+// ⚙️ SITE SETTINGS
+// ============================================
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String @db.Text
+
+  @@map("site_settings")
+}
+
+// ============================================
+// 📬 CONTACT SUBMISSIONS
+// ============================================
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([read])
+  @@map("contact_submissions")
+}
+
+// ============================================
+// 📦 SERVICE PACKAGES
+// ============================================
+model ServicePackage {
+  id        String   @id @default(cuid())
+  title     String
+  price     String
+  category  String
+  features  String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@map("service_packages")
+}

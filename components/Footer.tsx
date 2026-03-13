@@ -71,18 +71,6 @@ export function Footer() {
                 Based in the digital realm, operating worldwide.
               </p>
             </div>
-
-            {/* Newsletter */}
-            <div className="mt-8 md:mt-0 relative group">
-              <input
-                type="email"
-                placeholder="Enter email for updates"
-                className="w-full bg-transparent border-b border-white/20 py-3 text-sm font-share-tech text-foreground focus:outline-none focus:border-electric-blue transition-colors placeholder:text-gray-600"
-              />
-              <button className="absolute right-0 top-3 text-gray-400 group-hover:text-electric-blue transition-colors">
-                <ArrowUpRight size={18} />
-              </button>
-            </div>
           </div>
 
           {/* NAVIGATION COLUMN */}

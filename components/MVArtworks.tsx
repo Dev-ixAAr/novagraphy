@@ -5,9 +5,15 @@ import { motion, useMotionValue, animate } from "framer-motion";
 import { ArrowLeft, ArrowRight, Play } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { MV_ARTWORKS_DATA } from "@/data/content";
+// ✅ Database type instead of mock data
+import type { MvArtwork } from "@/lib/types/database";
 
-export function MVArtworks() {
+// ✅ Props type — data comes from Server Component
+type MVArtworksProps = {
+  mvArtworks: MvArtwork[];
+};
+
+export function MVArtworks({ mvArtworks }: MVArtworksProps) {
   const [width, setWidth] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -83,7 +89,7 @@ export function MVArtworks() {
           whileTap={{ cursor: "grabbing" }}
           className="flex gap-8 md:gap-12"
         >
-          {MV_ARTWORKS_DATA.slice(0, 5).map((art) => (
+          {mvArtworks.slice(0, 5).map((art) => (
             <motion.div
               key={art.id}
               className="relative min-w-[280px] md:min-w-[400px] group"
@@ -110,7 +116,7 @@ export function MVArtworks() {
                   <p className="font-base-neue text-sm text-gray-500">{art.artist}</p>
                 </div>
                 <span className="font-share-tech text-electric-blue text-xs border border-electric-blue/30 px-2 py-1 rounded">
-                  MV-0{art.id}
+                  MV-0{art.sortOrder}
                 </span>
               </div>
             </motion.div>

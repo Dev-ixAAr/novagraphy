@@ -1,17 +1,39 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { PRODUCTS } from "@/data/products";
+import type { ProductWithDetails } from "@/lib/types/database";
 
 export function MinimalistLightbox() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedImageId = searchParams.get("selectedImageId");
 
-  const product = PRODUCTS.find((p) => p.id === selectedImageId);
+  const [product, setProduct] = useState<ProductWithDetails | null>(null);
+
+  // ✅ Fetch product from database via API
+  useEffect(() => {
+    if (!selectedImageId) {
+      setProduct(null);
+      return;
+    }
+
+    async function loadProduct() {
+      try {
+        const res = await fetch(`/api/products/${selectedImageId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setProduct(data);
+        }
+      } catch (error) {
+        console.error("Failed to load product for lightbox:", error);
+      }
+    }
+
+    loadProduct();
+  }, [selectedImageId]);
 
   useEffect(() => {
     if (selectedImageId) {
@@ -55,7 +77,7 @@ export function MinimalistLightbox() {
             className="relative z-10 w-full h-full p-4 md:p-12 flex items-center justify-center pointer-events-none"
           >
             <img
-              src={product.image}
+              src={product.colors?.[0]?.images?.[0] || product.image}
               alt={product.title}
               className="max-h-[90vh] max-w-[90vw] w-auto h-auto object-contain pointer-events-auto drop-shadow-2xl"
               onClick={(e) => e.stopPropagation()}

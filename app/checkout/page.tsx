@@ -1,28 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-
-// Dummy data for cart items
-const dummyCartItems = [
-  {
-    id: 1,
-    name: "Aura - Limited Edition Print",
-    price: 120.00,
-    quantity: 1,
-    image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop"
-  },
-  {
-    id: 2,
-    name: "Nova Photography Book",
-    price: 85.00,
-    quantity: 2,
-    image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=2787&auto=format&fit=crop"
-  }
-];
+import { useRouter } from 'next/navigation';
+import { useCart } from '@/context/CartContext';
+import { createOrder } from '@/lib/actions/orders';
+import type { PayHereCheckoutData } from '@/lib/actions/orders';
 
 export default function CheckoutPage() {
+  const router = useRouter();
+  const { cartItems, cartTotal } = useCart();
+  const payHereFormRef = useRef<HTMLFormElement>(null);
+
   const [shippingDetails, setShippingDetails] = useState({
     firstName: '',
     lastName: '',
@@ -34,6 +24,9 @@ export default function CheckoutPage() {
   });
 
   const [deliveryCharge, setDeliveryCharge] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [payHereData, setPayHereData] = useState<PayHereCheckoutData | null>(null);
 
   // Dynamic delivery charge logic
   useEffect(() => {
@@ -47,6 +40,14 @@ export default function CheckoutPage() {
     }
   }, [shippingDetails.city]);
 
+  // ✅ Auto-submit PayHere form when data is ready
+  // Note: Cart is NOT cleared here — it's cleared on the /success page after confirmed payment.
+  useEffect(() => {
+    if (payHereData && payHereFormRef.current) {
+      payHereFormRef.current.submit();
+    }
+  }, [payHereData]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setShippingDetails(prev => ({
@@ -55,8 +56,52 @@ export default function CheckoutPage() {
     }));
   };
 
-  const subtotal = dummyCartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   const finalTotal = subtotal + deliveryCharge;
+
+  // ✅ Handle Place Order — creates order, then redirects to PayHere
+  const handlePlaceOrder = async () => {
+    // Basic validation
+    if (!shippingDetails.firstName || !shippingDetails.email || !shippingDetails.address || !shippingDetails.city) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      setError('Your cart is empty.');
+      return;
+    }
+
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      const checkoutData = await createOrder({
+        name: `${shippingDetails.firstName} ${shippingDetails.lastName}`.trim(),
+        email: shippingDetails.email,
+        phone: shippingDetails.phone || undefined,
+        address: shippingDetails.address,
+        city: shippingDetails.city,
+        postalCode: shippingDetails.postalCode || undefined,
+        items: cartItems.map((item) => ({
+          productId: item.productId || item.id.split('-')[0] || item.id,
+          name: item.name,
+          color: item.color || undefined,
+          size: item.size || undefined,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image || undefined,
+        })),
+      });
+
+      // Set PayHere data — triggers useEffect form submission
+      setPayHereData(checkoutData);
+    } catch (err) {
+      console.error('Order submission failed:', err);
+      setError('Something went wrong. Please try again.');
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white selection:bg-blue-500/30">
@@ -76,7 +121,7 @@ export default function CheckoutPage() {
               Shipping Information
             </h2>
             
-            <form className="space-y-8">
+            <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
               {/* Name Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6">
                 <div className="flex flex-col gap-2 relative group">
@@ -187,25 +232,29 @@ export default function CheckoutPage() {
               
               {/* Cart Items List */}
               <div className="space-y-6 mb-8 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
-                {dummyCartItems.map((item) => (
-                  <div key={item.id} className="flex gap-4 group">
-                    <div className="relative w-20 h-24 rounded-lg overflow-hidden bg-zinc-200 dark:bg-zinc-800 shrink-0 border border-zinc-200 dark:border-zinc-800">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="flex flex-col justify-between py-1 flex-1">
-                      <div>
-                        <h3 className="font-medium text-sm md:text-base line-clamp-2 leading-tight">{item.name}</h3>
-                        <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1.5">Qty: {item.quantity}</p>
+                {cartItems.length === 0 ? (
+                  <p className="text-zinc-400 dark:text-zinc-500 text-sm text-center py-8">Your cart is empty</p>
+                ) : (
+                  cartItems.map((item) => (
+                    <div key={item.id} className="flex gap-4 group">
+                      <div className="relative w-20 h-24 rounded-lg overflow-hidden bg-zinc-200 dark:bg-zinc-800 shrink-0 border border-zinc-200 dark:border-zinc-800">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
                       </div>
-                      <p className="font-medium text-sm md:text-base">${(item.price * item.quantity).toFixed(2)}</p>
+                      <div className="flex flex-col justify-between py-1 flex-1">
+                        <div>
+                          <h3 className="font-medium text-sm md:text-base line-clamp-2 leading-tight">{item.name}</h3>
+                          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1.5">Qty: {item.quantity}</p>
+                        </div>
+                        <p className="font-medium text-sm md:text-base">${(item.price * item.quantity).toFixed(2)}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
 
               {/* Totals Calculation */}
@@ -232,18 +281,25 @@ export default function CheckoutPage() {
                 <span className="text-3xl font-bold tracking-tight">${finalTotal.toFixed(2)}</span>
               </div>
 
+              {/* Error Message */}
+              {error && (
+                <p className="mt-4 text-red-500 text-sm text-center">{error}</p>
+              )}
+
               {/* Action Button */}
               <button 
                 type="button"
-                className="mt-10 bg-blue-600 hover:bg-blue-700 text-white w-full py-4 rounded-full tracking-widest uppercase font-medium text-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-50 dark:focus:ring-offset-zinc-900 shadow-[0_0_20px_rgba(37,99,235,0.2)] hover:shadow-[0_0_25px_rgba(37,99,235,0.4)] active:scale-[0.98]"
+                onClick={handlePlaceOrder}
+                disabled={isSubmitting || cartItems.length === 0}
+                className="mt-10 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white w-full py-4 rounded-full tracking-widest uppercase font-medium text-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-50 dark:focus:ring-offset-zinc-900 shadow-[0_0_20px_rgba(37,99,235,0.2)] hover:shadow-[0_0_25px_rgba(37,99,235,0.4)] active:scale-[0.98]"
               >
-                Place Order
+                {isSubmitting ? 'Redirecting to PayHere...' : 'Pay with PayHere'}
               </button>
               
               <div className="mt-6 flex justify-center">
                 <p className="text-xs text-zinc-500 dark:text-zinc-500 flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  Secure SSL Checkout
+                  Secure PayHere Checkout
                 </p>
               </div>
             </div>
@@ -251,6 +307,33 @@ export default function CheckoutPage() {
 
         </div>
       </div>
+
+      {/* ✅ Hidden PayHere form — auto-submitted via useEffect */}
+      {payHereData && (
+        <form
+          ref={payHereFormRef}
+          method="POST"
+          action={payHereData.checkoutUrl}
+          style={{ display: "none" }}
+        >
+          <input type="hidden" name="merchant_id" value={payHereData.merchantId} />
+          <input type="hidden" name="return_url" value={payHereData.returnUrl} />
+          <input type="hidden" name="cancel_url" value={payHereData.cancelUrl} />
+          <input type="hidden" name="notify_url" value={payHereData.notifyUrl} />
+          <input type="hidden" name="order_id" value={payHereData.orderNumber} />
+          <input type="hidden" name="items" value={payHereData.itemsSummary} />
+          <input type="hidden" name="currency" value={payHereData.currency} />
+          <input type="hidden" name="amount" value={payHereData.amount} />
+          <input type="hidden" name="first_name" value={payHereData.firstName} />
+          <input type="hidden" name="last_name" value={payHereData.lastName} />
+          <input type="hidden" name="email" value={payHereData.email} />
+          <input type="hidden" name="phone" value={payHereData.phone} />
+          <input type="hidden" name="address" value={payHereData.address} />
+          <input type="hidden" name="city" value={payHereData.city} />
+          <input type="hidden" name="country" value={payHereData.country} />
+          <input type="hidden" name="hash" value={payHereData.hash} />
+        </form>
+      )}
     </div>
   );
 }

@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, Calendar, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { EVENTS_DATA } from "@/data/content"; // 👈 මෙතනින් Import කරන්න
+// ✅ Database type instead of mock data
+import type { Event } from "@/lib/types/database";
 
 const containerVariants: any = {
   hidden: { opacity: 0 },
@@ -24,7 +25,12 @@ const cardVariants: any = {
   },
 };
 
-export function Events() {
+// ✅ Props type — data comes from Server Component
+type EventsProps = {
+  events: Event[];
+};
+
+export function Events({ events }: EventsProps) {
   return (
     <section className="relative w-full bg-background py-24 px-6 md:px-12 border-t border-white/5">
       {/* Background Ambience */}
@@ -54,7 +60,7 @@ export function Events() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
-          {EVENTS_DATA.slice(0, 5).map((event) => (
+          {events.slice(0, 5).map((event) => (
             <motion.div
               key={event.id}
               variants={cardVariants}

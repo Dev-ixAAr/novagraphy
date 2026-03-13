@@ -4,7 +4,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Hexagon, ArrowUpRight } from "lucide-react";
 import Image from "next/image";
-import { LOGO_DATA } from "@/data/content"; // Data Import
+// ✅ Database type instead of mock data
+import type { LogoWork } from "@/lib/types/database";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -19,7 +20,12 @@ const cardVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 
-export function LogoShowcase() {
+// ✅ Props type — data comes from Server Component
+type LogoShowcaseProps = {
+  logoWorks: LogoWork[];
+};
+
+export function LogoShowcase({ logoWorks }: LogoShowcaseProps) {
   return (
     <section className="w-full bg-background py-24 px-6 md:px-12 border-t border-white/5">
       <div className="max-w-7xl mx-auto">
@@ -43,11 +49,11 @@ export function LogoShowcase() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[280px]"
         >
-          {LOGO_DATA.map((item) => (
+          {logoWorks.map((item) => (
             <motion.div
               key={item.id}
               variants={cardVariants}
-              className={`relative group overflow-hidden rounded-3xl border border-white/10 bg-white/5 dark:bg-black/20 backdrop-blur-xl ${item.className}`}
+              className={`relative group overflow-hidden rounded-3xl border border-white/10 bg-white/5 dark:bg-black/20 backdrop-blur-xl ${item.className || ''}`}
             >
               {/* Image */}
               <div className="absolute inset-0 w-full h-full">

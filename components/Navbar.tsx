@@ -19,7 +19,11 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const { cartItems, toggleCart } = useCart();
-  
+
+  if (pathname && pathname.startsWith("/admin")) {
+    return null;
+  }
+
   // Only show the global cart icon on the shop page or its subroutes
   const isShopPage = pathname?.startsWith('/shop');
 
@@ -100,9 +104,10 @@ export function Navbar() {
         {/* --- RIGHT SIDE: CTA & MOBILE TOGGLE --- */}
         <div className="flex items-center gap-4">
           <div className="hidden md:block">
-            <button
+            <Link
+              href="/start-project"
               className={[
-                "group relative overflow-hidden rounded-full bg-transparent px-6 py-2",
+                "group relative overflow-hidden rounded-full bg-transparent px-6 py-2 flex items-center justify-center",
                 "text-[11px] font-share-tech uppercase tracking-widest",
                 "transition-all duration-300",
                 /* Light */
@@ -118,7 +123,7 @@ export function Navbar() {
                 START PROJECT
               </span>
               <div className="absolute inset-0 bg-electric-blue/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-            </button>
+            </Link>
           </div>
 
           {/* --- CONDITIONALLY RENDER CART ICON (Only on Shop) --- */}
@@ -204,11 +209,12 @@ export function Navbar() {
 
             <div className="h-[1px] bg-zinc-900/10 dark:bg-white/10 w-full my-2 transition-colors duration-300" />
 
-            <button
+            <Link
+              href="/start-project"
               onClick={() => setIsOpen(false)}
               className={[
                 "w-full rounded-full border border-electric-blue bg-electric-blue/10",
-                "px-6 py-4 text-[11px] font-share-tech uppercase tracking-widest",
+                "px-6 py-4 flex items-center justify-center text-[11px] font-share-tech uppercase tracking-widest",
                 "text-electric-blue transition-all",
                 "active:bg-electric-blue active:text-white dark:active:text-black",
                 "hover:bg-electric-blue hover:text-white dark:hover:text-black",
@@ -216,7 +222,7 @@ export function Navbar() {
               ].join(" ")}
             >
               START PROJECT
-            </button>
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>

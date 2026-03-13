@@ -160,6 +160,49 @@ function GlowCard({ children, className }: { children: React.ReactNode, classNam
 }
 
 function ContactFormWidget() {
+   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+   const [isSubmitting, setIsSubmitting] = useState(false);
+   const [isSuccess, setIsSuccess] = useState(false);
+
+   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+   };
+
+   const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!formData.name || !formData.email || !formData.message) return;
+
+      setIsSubmitting(true);
+      try {
+         const { submitContactForm } = await import("@/lib/actions/contact");
+         await submitContactForm({
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject || undefined,
+            message: formData.message,
+         });
+         setIsSuccess(true);
+      } catch (error) {
+         console.error("Contact form submission failed:", error);
+      } finally {
+         setIsSubmitting(false);
+      }
+   };
+
+   if (isSuccess) {
+      return (
+         <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+            <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
+               <Check className="text-green-500 w-8 h-8" />
+            </div>
+            <h3 className="font-contrail text-3xl uppercase mb-3">Message Sent</h3>
+            <p className="font-base-neue text-gray-400 text-sm max-w-xs">
+               Thanks for reaching out! We&apos;ll get back to you within 24 hours.
+            </p>
+         </div>
+      );
+   }
+
    return (
       <div className="h-full flex flex-col justify-between p-8">
          <div>
@@ -170,16 +213,20 @@ function ContactFormWidget() {
             <h3 className="font-contrail text-3xl md:text-4xl uppercase mb-6 leading-none">Start a Project</h3>
          </div>
 
-         <form className="flex flex-col gap-6 flex-1 justify-center">
+         <form onSubmit={handleSubmit} className="flex flex-col gap-6 flex-1 justify-center">
             <div className="grid grid-cols-2 gap-4">
-               <input type="text" placeholder="NAME" className="bg-transparent border-b border-foreground/10 py-2 text-sm focus:outline-none focus:border-electric-blue transition-colors font-share-tech" />
-               <input type="email" placeholder="EMAIL" className="bg-transparent border-b border-foreground/10 py-2 text-sm focus:outline-none focus:border-electric-blue transition-colors font-share-tech" />
+               <input type="text" name="name" placeholder="NAME" value={formData.name} onChange={handleChange} className="bg-transparent border-b border-foreground/10 py-2 text-sm focus:outline-none focus:border-electric-blue transition-colors font-share-tech" />
+               <input type="email" name="email" placeholder="EMAIL" value={formData.email} onChange={handleChange} className="bg-transparent border-b border-foreground/10 py-2 text-sm focus:outline-none focus:border-electric-blue transition-colors font-share-tech" />
             </div>
-            <input type="text" placeholder="TELL US ABOUT YOUR VISION" className="bg-transparent border-b border-foreground/10 py-2 text-sm focus:outline-none focus:border-electric-blue transition-colors font-share-tech w-full" />
+            <input type="text" name="message" placeholder="TELL US ABOUT YOUR VISION" value={formData.message} onChange={handleChange} className="bg-transparent border-b border-foreground/10 py-2 text-sm focus:outline-none focus:border-electric-blue transition-colors font-share-tech w-full" />
          </form>
 
-         <button className="mt-6 w-full bg-foreground text-background font-contrail text-lg uppercase py-4 rounded-full hover:bg-electric-blue hover:text-black transition-colors shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-            Send Message
+         <button
+            onClick={handleSubmit as any}
+            disabled={isSubmitting || !formData.name || !formData.email || !formData.message}
+            className="mt-6 w-full bg-foreground text-background font-contrail text-lg uppercase py-4 rounded-full hover:bg-electric-blue hover:text-black transition-colors shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-50 disabled:cursor-not-allowed"
+         >
+            {isSubmitting ? 'Sending...' : 'Send Message'}
          </button>
       </div>
    );
