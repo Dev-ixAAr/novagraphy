@@ -214,9 +214,9 @@ function ContactFormWidget() {
          </div>
 
          <form onSubmit={handleSubmit} className="flex flex-col gap-6 flex-1 justify-center">
-            <div className="grid grid-cols-2 gap-4">
-               <input type="text" name="name" placeholder="NAME" value={formData.name} onChange={handleChange} className="bg-transparent border-b border-foreground/10 py-2 text-sm focus:outline-none focus:border-electric-blue transition-colors font-share-tech" />
-               <input type="email" name="email" placeholder="EMAIL" value={formData.email} onChange={handleChange} className="bg-transparent border-b border-foreground/10 py-2 text-sm focus:outline-none focus:border-electric-blue transition-colors font-share-tech" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <input type="text" name="name" placeholder="NAME" value={formData.name} onChange={handleChange} className="bg-transparent border-b border-foreground/10 py-2 text-sm focus:outline-none focus:border-electric-blue transition-colors font-share-tech w-full" />
+               <input type="email" name="email" placeholder="EMAIL" value={formData.email} onChange={handleChange} className="bg-transparent border-b border-foreground/10 py-2 text-sm focus:outline-none focus:border-electric-blue transition-colors font-share-tech w-full" />
             </div>
             <input type="text" name="message" placeholder="TELL US ABOUT YOUR VISION" value={formData.message} onChange={handleChange} className="bg-transparent border-b border-foreground/10 py-2 text-sm focus:outline-none focus:border-electric-blue transition-colors font-share-tech w-full" />
          </form>

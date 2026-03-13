@@ -4,7 +4,8 @@ import { createPortfolioItem } from '../actions';
 import Link from 'next/link';
 import { ArrowLeft, Save, UploadCloud, X } from 'lucide-react';
 import { useState } from 'react';
-import { CldUploadWidget } from 'next-cloudinary';
+import dynamic from 'next/dynamic';
+const CldUploadWidget = dynamic(() => import('next-cloudinary').then((mod) => mod.CldUploadWidget), { ssr: false, loading: () => <div className="h-64 w-full bg-slate-800 animate-pulse rounded-lg border-2 border-dashed border-slate-600"></div> });
 import Image from 'next/image';
 
 export default function NewPortfolioPage() {

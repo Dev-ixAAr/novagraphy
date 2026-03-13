@@ -3,6 +3,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { generatePayHereHash, PAYHERE_CONFIG } from "@/lib/payhere";
+import { getLiveExchangeRate } from "@/lib/utils/currency";
 
 type OrderItemInput = {
   productId: string;
@@ -97,7 +98,9 @@ export async function createOrder(input: CreateOrderInput): Promise<PayHereCheck
   // 2. Generate PayHere hash and return checkout data
   // ✅ Email is NOT sent here — it fires from the IPN webhook after confirmed payment
   const currency = "LKR";
-  const hash = generatePayHereHash(order.orderNumber, totalAmount, currency);
+  const currentRate = await getLiveExchangeRate();
+  const totalLkrAmount = totalAmount * currentRate;
+  const hash = generatePayHereHash(order.orderNumber, totalLkrAmount, currency);
 
   const nameParts = input.name.split(" ");
   const firstName = nameParts[0] || "";
@@ -116,7 +119,7 @@ export async function createOrder(input: CreateOrderInput): Promise<PayHereCheck
     hash,
     merchantId: PAYHERE_CONFIG.merchantId,
     checkoutUrl: PAYHERE_CONFIG.checkoutUrl,
-    amount: totalAmount.toFixed(2),
+    amount: totalLkrAmount.toFixed(2),
     currency,
     firstName,
     lastName,

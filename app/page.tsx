@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import dynamic from 'next/dynamic';
 import { Hero } from "@/components/Hero";
-import { Events } from "@/components/Events";
-import { MVArtworks } from "@/components/MVArtworks";
-import { LogoShowcase } from "@/components/LogoShowcase";
-import { LatestProductsBento } from "@/components/LatestProductsBento";
-import { NavigationBlocks } from "@/components/NavigationBlocks";
-import { Footer } from "@/components/Footer";
+
+const Events = dynamic(() => import("@/components/Events").then((mod) => mod.Events), { ssr: true });
+const MVArtworks = dynamic(() => import("@/components/MVArtworks").then((mod) => mod.MVArtworks), { ssr: true });
+const LogoShowcase = dynamic(() => import("@/components/LogoShowcase").then((mod) => mod.LogoShowcase), { ssr: true });
+const LatestProductsBento = dynamic(() => import("@/components/LatestProductsBento").then((mod) => mod.LatestProductsBento), { ssr: true });
+const NavigationBlocks = dynamic(() => import("@/components/NavigationBlocks").then((mod) => mod.NavigationBlocks), { ssr: true });
+const Footer = dynamic(() => import("@/components/Footer").then((mod) => mod.Footer), { ssr: true });
 
 export const metadata: Metadata = {
   title: "[INSERT_HOME_TITLE]", // Uses template: "[INSERT_HOME_TITLE] | NOVAGRAPHY"
@@ -17,20 +19,14 @@ export const metadata: Metadata = {
   },
 };
 
-// ✅ Database actions — Home page uses "Latest" variants (take: 3, newest first)
-import { getLatestEvents, getLatestMvArtworks, getLatestLogoWorks } from "@/lib/actions/portfolio";
-import { getProducts, getProductDisplays } from "@/lib/actions/products";
+// ✅ Wrapper imports for Suspense
+import EventsWrapper from "@/components/wrappers/EventsWrapper";
+import MVArtworksWrapper from "@/components/wrappers/MVArtworksWrapper";
+import LogoShowcaseWrapper from "@/components/wrappers/LogoShowcaseWrapper";
+import LatestProductsBentoWrapper from "@/components/wrappers/LatestProductsBentoWrapper";
+import { Suspense } from "react";
 
-export default async function Home() {
-  // 🔥 All data fetched server-side in parallel — 3 latest items per section
-  const [events, mvArtworks, logoWorks, products, productDisplays] = await Promise.all([
-    getLatestEvents(),
-    getLatestMvArtworks(),
-    getLatestLogoWorks(),
-    getProducts(),
-    getProductDisplays(),
-  ]);
-
+export default function Home() {
   return (
     <div className="relative w-full min-h-screen bg-background text-foreground selection:bg-electric-blue selection:text-black overflow-hidden transition-colors duration-500">
 
@@ -59,10 +55,22 @@ export default async function Home() {
         {/* The entry point with 3D/Parallax effects */}
         <Hero />
 
-        <Events events={events} />
-        <MVArtworks mvArtworks={mvArtworks} />
-        <LogoShowcase logoWorks={logoWorks} />
-        <LatestProductsBento products={products} />
+        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center animate-pulse"><div className="w-32 h-8 bg-white/10 rounded-lg"></div></div>}>
+          <EventsWrapper />
+        </Suspense>
+        
+        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center animate-pulse"><div className="w-32 h-8 bg-white/10 rounded-lg"></div></div>}>
+          <MVArtworksWrapper />
+        </Suspense>
+
+        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center animate-pulse"><div className="w-32 h-8 bg-white/10 rounded-lg"></div></div>}>
+          <LogoShowcaseWrapper />
+        </Suspense>
+
+        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center animate-pulse"><div className="w-32 h-8 bg-white/10 rounded-lg"></div></div>}>
+          <LatestProductsBentoWrapper />
+        </Suspense>
+
         <NavigationBlocks />
         <Footer />
 

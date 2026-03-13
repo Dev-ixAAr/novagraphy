@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { Plus, Trash2, ImageIcon, Star, Edit } from 'lucide-react';
+import Image from 'next/image';
 import { deleteProduct } from './actions';
 
 export default async function ProductsPage() {
@@ -55,9 +56,11 @@ export default async function ProductsPage() {
                       <div className="w-16 h-16 rounded-lg bg-[#0f1115] border border-gray-800 overflow-hidden flex items-center justify-center group-hover:border-gray-700 transition-colors">
                         {product.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <Image
                             src={product.image}
                             alt={product.title}
+                            width={64}
+                            height={64}
                             className="w-full h-full object-cover"
                           />
                         ) : (

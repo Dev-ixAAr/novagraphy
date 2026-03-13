@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { Plus, Trash2, ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 import { deletePortfolioItem } from './actions';
 
 export default async function PortfolioPage() {
@@ -24,7 +25,7 @@ export default async function PortfolioPage() {
         </Link>
       </div>
 
-      <div className="bg-[#161920] border border-gray-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-[#161920] border border-gray-800 rounded-xl overflow-x-auto shadow-sm">
         <table className="w-full text-left text-sm text-gray-400">
           <thead className="bg-[#0f1115]/50 border-b border-gray-800 text-gray-200 uppercase text-xs font-semibold">
             <tr>
@@ -46,7 +47,7 @@ export default async function PortfolioPage() {
                     <td className="px-6 py-4 w-24">
                     <div className="w-16 h-16 rounded-lg bg-[#0f1115] border border-gray-800 overflow-hidden flex items-center justify-center">
                         {item.image ? (
-                        <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                        <Image src={item.image} alt={item.title} width={64} height={64} className="w-full h-full object-cover" />
                         ) : (
                         <ImageIcon className="text-gray-600 w-6 h-6" />
                         )}

@@ -5,9 +5,9 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Play, Atom } from "lucide-react";
 import { TextScramble } from "./ui/TextScramble";
 import Particles from "./ui/Particles"; // කලින් හදපු Particles Component එක
-
-const CHARACTER_IMG = "/logo/gojo.png";
-const BG_IMG = "/logo/bg.jpg";
+import Image from "next/image";
+import bgDataUrl from "@/public/logo/bg.jpg";
+import charDataUrl from "@/public/logo/gojo.png";
 
 export function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -56,11 +56,14 @@ export function Hero() {
           transition={{ duration: 2 }}
           className="absolute inset-0"
         >
-          <img
-            src={BG_IMG}
+          <Image
+            src={bgDataUrl}
             alt="Space Background"
+            placeholder="blur"
+            priority
+            fill
             className="
-                  w-full h-full object-cover blur-[40px] scale-110 
+                  object-cover blur-[40px] scale-110 
                   /* Light Mode: Low Opacity | Dark Mode: Medium Opacity */
                   opacity-30 dark:opacity-60
                   transition-opacity duration-700
@@ -216,16 +219,22 @@ export function Hero() {
                 transition-colors duration-700
             " />
 
-            <img
-              src={CHARACTER_IMG}
-              alt="Hero Character"
-              className="
-                 h-full w-auto object-contain object-bottom 
-                 /* 🌗 SHADOWS: Soft in Light, Deep in Dark */
-                 drop-shadow-[0_20px_30px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_50px_80px_rgba(0,0,0,0.8)]
-                 transition-all duration-500
-               "
-            />
+            {/* We cannot use layout="fill" easily here because the container isn't clearly positioned for it relative to the image size requirements, wait, we can just use fixed size or use next/image with full sizing if we want, but since it's an img tag we can just replace it and add priority.*/}
+            <div className="relative h-full w-full">
+               <Image
+                 src={charDataUrl}
+                 alt="Hero Character"
+                 placeholder="blur"
+                 priority
+                 fill
+                 className="
+                    object-contain object-bottom 
+                    /* 🌗 SHADOWS: Soft in Light, Deep in Dark */
+                    drop-shadow-[0_20px_30px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_50px_80px_rgba(0,0,0,0.8)]
+                    transition-all duration-500
+                  "
+               />
+            </div>
           </motion.div>
 
         </div>

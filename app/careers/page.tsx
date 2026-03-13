@@ -78,11 +78,11 @@ function ParallaxHero() {
             <span className="font-share-tech text-xs uppercase tracking-widest text-gray-300">We are Hiring</span>
           </div>
 
-          <h1 className="font-contrail text-7xl md:text-[10rem] uppercase leading-[0.8] tracking-tighter mb-8 mix-blend-overlay">
-            Join The <br /> <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-600">Cult.</span>
+          <h1 className="font-contrail text-5xl md:text-7xl lg:text-[10rem] uppercase leading-[0.8] tracking-tighter mb-8 mix-blend-overlay">
+            Join The <br className="hidden sm:block" /> <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-600">Cult.</span>
           </h1>
 
-          <p className="font-base-neue text-gray-400 max-w-lg mx-auto text-lg md:text-xl leading-relaxed">
+          <p className="font-base-neue text-gray-400 max-w-lg mx-auto text-base md:text-lg lg:text-xl leading-relaxed">
             We are building the digital future. If you are obsessed with quality and crave the unknown, you belong here.
           </p>
         </motion.div>

@@ -2,9 +2,10 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRef } from "react";
 // ✅ Unified PortfolioItem type
 import type { PortfolioItem } from "@/lib/types/database";
 
@@ -31,6 +32,11 @@ type EventsProps = {
 };
 
 export function Events({ events }: EventsProps) {
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeft = () => carouselRef.current?.scrollBy({ left: -400, behavior: 'smooth' });
+  const scrollRight = () => carouselRef.current?.scrollBy({ left: 400, behavior: 'smooth' });
+
   return (
     <section className="relative w-full bg-background py-24 px-6 md:px-12 border-t border-white/5">
       {/* Background Ambience */}
@@ -47,24 +53,36 @@ export function Events({ events }: EventsProps) {
               Live <span className="text-electric-blue/80">Events</span>
             </h2>
           </div>
-          <Link href="/portfolio?category=events" className="font-base-neue uppercase text-sm text-gray-400 hover:text-electric-blue transition-colors duration-300 md:mb-4">
-            View Full Collection -&gt;
-          </Link>
+          <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-8">
+            <Link href="/portfolio?category=events" className="font-base-neue uppercase text-sm text-gray-400 hover:text-electric-blue transition-colors duration-300 md:mb-4">
+              View Full Collection -&gt;
+            </Link>
+            
+            <div className="hidden md:flex gap-4 mb-4">
+              <button onClick={scrollLeft} className="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center text-foreground hover:border-electric-blue hover:text-electric-blue transition-all duration-300">
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <button onClick={scrollRight} className="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center text-foreground hover:border-electric-blue hover:text-electric-blue transition-all duration-300">
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Grid */}
+        {/* Horizontal Carousel */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          ref={carouselRef}
+          className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-6 pb-8 -mx-6 px-6 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden"
         >
           {events.map((event) => (
             <motion.div
               key={event.id}
               variants={cardVariants}
-              className="group relative h-[500px] w-full cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-black/20 dark:bg-black/40"
+              className="group relative h-[400px] md:h-[500px] w-[85vw] sm:w-[60vw] md:w-[400px] lg:w-[450px] shrink-0 snap-center cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-black/20 dark:bg-black/40"
             >
               <div className="absolute inset-0 h-full w-full">
                 <Image

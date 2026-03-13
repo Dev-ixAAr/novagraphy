@@ -1,6 +1,11 @@
 'use client';
 
-import { CldUploadWidget } from 'next-cloudinary';
+import dynamic from 'next/dynamic';
+
+const CldUploadWidget = dynamic(() => import('next-cloudinary').then((mod) => mod.CldUploadWidget), { 
+  ssr: false, 
+  loading: () => <div className="animate-pulse bg-slate-800 rounded-lg w-full h-64 border-2 border-slate-700 border-dashed flex items-center justify-center">Loading Uploader...</div>
+});
 import Image from 'next/image';
 import { useCallback, useState, useEffect } from 'react';
 

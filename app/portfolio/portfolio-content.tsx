@@ -118,7 +118,7 @@ function PortfolioGrid({ items }: PortfolioContentProps) {
       {/* Bento Grid Showcase */}
       <motion.div
         layout
-        className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 auto-rows-[280px] md:auto-rows-[300px] gap-4 md:gap-6 w-full"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-[280px] md:auto-rows-[300px] gap-4 md:gap-6 w-full"
       >
         <AnimatePresence mode="popLayout">
           {displayedItems.length > 0 ? (
@@ -258,7 +258,7 @@ export default function PortfolioContent({ items }: PortfolioContentProps) {
             <h1 className="font-contrail text-5xl md:text-7xl lg:text-9xl uppercase text-foreground leading-none mb-6">
               Full <span className="text-electric-blue/80">Portfolio</span>
             </h1>
-            <p className="font-base-neue text-gray-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+            <p className="font-base-neue text-gray-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed px-4 md:px-0">
               Explore our complete collection of live events, visual artworks,
               brand identities, and exclusive apparel. Crafted with precision,
               designed for impact.

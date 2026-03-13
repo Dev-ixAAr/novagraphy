@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { createOrder } from '@/lib/actions/orders';
 import type { PayHereCheckoutData } from '@/lib/actions/orders';
+import { getLiveExchangeRate } from '@/lib/utils/currency';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -27,6 +28,20 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [payHereData, setPayHereData] = useState<PayHereCheckoutData | null>(null);
+  const [currentRate, setCurrentRate] = useState<number | null>(null);
+
+  // Fetch exchange rate on mount
+  useEffect(() => {
+    const fetchRate = async () => {
+      try {
+        const rate = await getLiveExchangeRate();
+        setCurrentRate(rate);
+      } catch (err) {
+        console.error('Failed to fetch exchange rate:', err);
+      }
+    };
+    fetchRate();
+  }, []);
 
   // Dynamic delivery charge logic
   useEffect(() => {
@@ -296,6 +311,17 @@ export default function CheckoutPage() {
                 {isSubmitting ? 'Redirecting to PayHere...' : 'Pay with PayHere'}
               </button>
               
+              {currentRate && (
+                <div className="mt-4 text-center">
+                  <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                    Current Exchange Rate: 1 USD = Rs. {currentRate}
+                  </p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">
+                    (Updated Hourly)
+                  </p>
+                </div>
+              )}
+
               <div className="mt-6 flex justify-center">
                 <p className="text-xs text-zinc-500 dark:text-zinc-500 flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>

@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { Plus, Trash2, User, Star } from 'lucide-react';
+import Image from 'next/image';
 import { deleteTeamMember } from './actions';
 
 export default async function TeamPage() {
@@ -45,7 +46,7 @@ export default async function TeamPage() {
                     <td className="px-6 py-4 w-20">
                     <div className="w-12 h-12 rounded-full bg-[#0f1115] border border-gray-800 overflow-hidden flex items-center justify-center">
                         {member.img ? (
-                        <img src={member.img} alt={member.name} className="w-full h-full object-cover" />
+                        <Image src={member.img} alt={member.name} width={48} height={48} className="w-full h-full object-cover" />
                         ) : (
                         <User className="text-gray-600 w-5 h-5" />
                         )}

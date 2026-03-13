@@ -36,7 +36,7 @@ export default function MessageTable({ messages }: { messages: ContactSubmission
 
   return (
     <>
-      <div className="bg-[#161920] border border-gray-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-[#161920] border border-gray-800 rounded-xl overflow-x-auto shadow-sm">
         <table className="w-full text-left text-sm text-gray-400">
           <thead className="bg-[#0f1115]/50 border-b border-gray-800 text-gray-200 uppercase text-xs font-semibold">
             <tr>

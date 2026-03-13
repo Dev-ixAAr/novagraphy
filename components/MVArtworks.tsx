@@ -14,36 +14,10 @@ type MVArtworksProps = {
 };
 
 export function MVArtworks({ mvArtworks }: MVArtworksProps) {
-  const [width, setWidth] = useState(0);
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const updateWidth = () => {
-      if (sliderRef.current && containerRef.current) {
-        setWidth(sliderRef.current.scrollWidth - sliderRef.current.offsetWidth);
-      }
-    };
-
-    updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
-  }, []);
-
-  const handleScroll = (direction: 'left' | 'right') => {
-    const currentX = x.get();
-    const scrollAmount = window.innerWidth >= 768 ? 448 : 312; // ≈ Card width + gap
-
-    let newX;
-    if (direction === 'left') {
-      newX = Math.min(currentX + scrollAmount, 0);
-    } else {
-      newX = Math.max(currentX - scrollAmount, -width);
-    }
-
-    animate(x, newX, { type: "tween", ease: "easeInOut", duration: 0.5 });
-  };
+  const scrollLeft = () => carouselRef.current?.scrollBy({ left: -350, behavior: 'smooth' });
+  const scrollRight = () => carouselRef.current?.scrollBy({ left: 350, behavior: 'smooth' });
 
   return (
     <section className="relative w-full bg-background py-24 overflow-hidden border-t border-white/5">
@@ -54,7 +28,7 @@ export function MVArtworks({ mvArtworks }: MVArtworksProps) {
               (03) Visual Gallery
             </span>
             <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-8">
-              <h2 className="font-contrail text-4xl md:text-6xl lg:text-8xl uppercase text-foreground leading-none">
+              <h2 className="font-contrail text-4xl md:text-5xl lg:text-8xl uppercase text-foreground leading-none">
                 MV <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-white">ARTWORKS</span>
               </h2>
               <Link href="/portfolio?category=mv-artworks" className="font-base-neue uppercase text-sm text-gray-400 hover:text-electric-blue transition-colors duration-300 mb-2 md:mb-4">
@@ -65,13 +39,13 @@ export function MVArtworks({ mvArtworks }: MVArtworksProps) {
 
           <div className="flex gap-4 mt-6 md:mt-0">
             <button
-              onClick={() => handleScroll('left')}
+              onClick={scrollLeft}
               className="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center text-foreground hover:border-electric-blue hover:text-electric-blue transition-all duration-300"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <button
-              onClick={() => handleScroll('right')}
+              onClick={scrollRight}
               className="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center text-foreground hover:border-electric-blue hover:text-electric-blue transition-all duration-300"
             >
               <ArrowRight className="w-5 h-5" />
@@ -80,19 +54,14 @@ export function MVArtworks({ mvArtworks }: MVArtworksProps) {
         </div>
       </div>
 
-      <div ref={containerRef} className="w-full pl-6 md:pl-12 cursor-grab active:cursor-grabbing">
-        <motion.div
-          ref={sliderRef}
-          drag="x"
-          style={{ x }}
-          dragConstraints={{ right: 0, left: -width }}
-          whileTap={{ cursor: "grabbing" }}
-          className="flex gap-8 md:gap-12"
-        >
+      <div 
+        ref={carouselRef} 
+        className="w-full pl-6 md:pl-12 overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden pb-8 flex gap-8 md:gap-12"
+      >
           {mvArtworks.map((art, index) => (
             <motion.div
               key={art.id}
-              className="relative min-w-[280px] md:min-w-[400px] group"
+              className="relative w-[85vw] sm:w-[50vw] md:w-[400px] shrink-0 snap-center group"
               whileHover={{ y: -20, transition: { duration: 0.4 } }}
             >
               <div className="relative aspect-square w-full rounded-lg overflow-hidden border border-white/10 shadow-2xl bg-black">
@@ -121,7 +90,6 @@ export function MVArtworks({ mvArtworks }: MVArtworksProps) {
               </div>
             </motion.div>
           ))}
-        </motion.div>
       </div>
     </section>
   );
