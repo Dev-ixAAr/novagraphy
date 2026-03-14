@@ -158,7 +158,7 @@ model PortfolioItem {
 // ============================================
 model Order {
   id          String   @id @default(cuid())
-  orderNumber String   @unique @default(cuid())
+  orderNumber String   @unique
   name        String
   email       String
   phone       String?

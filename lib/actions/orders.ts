@@ -4,6 +4,7 @@
 import { prisma } from "@/lib/prisma";
 import { generatePayHereHash, PAYHERE_CONFIG } from "@/lib/payhere";
 import { getLiveExchangeRate } from "@/lib/utils/currency";
+import { generateCustomOrderId } from "@/lib/utils/order";
 
 type OrderItemInput = {
   productId: string;
@@ -72,9 +73,12 @@ export async function createOrder(input: CreateOrderInput): Promise<PayHereCheck
   const tax = subtotal * 0.08;
   const totalAmount = subtotal + shipping + tax;
 
+  const customOrderId = generateCustomOrderId();
+
   // 1. Save order to DB with PENDING status
   const order = await prisma.order.create({
     data: {
+      orderNumber: customOrderId,
       name: input.name,
       email: input.email,
       phone: input.phone,

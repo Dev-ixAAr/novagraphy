@@ -80,7 +80,7 @@ export async function POST(request: Request) {
 
       // ✅ Send Order Receipt Email NOW (after confirmed payment)
       try {
-        await resend.emails.send({
+        const { error: resendError } = await resend.emails.send({
           from: FROM_EMAIL,
           to: order.email,
           subject: `Payment Confirmed — ${order.orderNumber}`,
@@ -102,9 +102,14 @@ export async function POST(request: Request) {
             city: order.city,
           }),
         });
-        console.log(`[PayHere IPN] 📧 Receipt email sent to ${order.email}`);
-      } catch (emailError) {
-        console.error("[PayHere IPN] Failed to send receipt email:", emailError);
+
+        if (resendError) {
+          console.error("RESEND EMAIL ERROR:", resendError);
+        } else {
+          console.log(`[PayHere IPN] 📧 Receipt email sent to ${order.email}`);
+        }
+      } catch (error) {
+        console.error("RESEND EMAIL ERROR:", error);
       }
     } else if (status_code === "0") {
       console.log(`[PayHere IPN] ⏳ Order ${order_id} payment pending`);
