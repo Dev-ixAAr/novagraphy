@@ -22,6 +22,7 @@ type CreateOrderInput = {
   phone?: string;
   address: string;
   city: string;
+  district: string;
   state?: string;
   postalCode?: string;
   country?: string;
@@ -69,8 +70,14 @@ export async function createOrder(input: CreateOrderInput): Promise<PayHereCheck
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const shipping = subtotal > 200 ? 0 : 15;
-  const tax = subtotal * 0.08;
+
+  // Dynamic Shipping logic
+  const isColombo = input.district.toLowerCase() === "colombo";
+  const shippingRateColombo = parseFloat(process.env.NEXT_PUBLIC_SHIPPING_COLOMBO || "1.20");
+  const shippingRateOutside = parseFloat(process.env.NEXT_PUBLIC_SHIPPING_OUTSIDE || "2.00");
+  const shipping = isColombo ? shippingRateColombo : shippingRateOutside;
+
+  const tax = subtotal * 0.00;
   const totalAmount = subtotal + shipping + tax;
 
   const customOrderId = generateCustomOrderId();
@@ -84,7 +91,7 @@ export async function createOrder(input: CreateOrderInput): Promise<PayHereCheck
       phone: input.phone,
       address: input.address,
       city: input.city,
-      state: input.state,
+      state: input.district, // Save district to state field
       postalCode: input.postalCode,
       country: input.country ?? "LK",
       subtotal,

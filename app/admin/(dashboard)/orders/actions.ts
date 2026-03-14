@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { OrderStatus } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
-import nodemailer from 'nodemailer'; // Ensure you have installed: npm install nodemailer @types/nodemailer
+import { resend, FROM_EMAIL } from '@/lib/resend';
 
 export async function updateOrderStatus(
   orderId: string, 
@@ -38,16 +38,6 @@ export async function updateOrderStatus(
 
 // Helper function to send email
 async function sendStatusEmail(order: any) {
-  // Configure your SMTP transporter here
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.example.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-
   const subject = `Order Update #${order.orderNumber}: ${order.status}`;
   
   let message = `Hi ${order.name},\n\nYour order status has been updated to: ${order.status}.`;
@@ -75,14 +65,19 @@ async function sendStatusEmail(order: any) {
   `;
 
   try {
-    await transporter.sendMail({
-      from: '"Novagraphy Store" <orders@novagraphy.com>',
+    const { error } = await resend.emails.send({
+      from: FROM_EMAIL,
       to: order.email,
       subject: subject,
       text: message, // Fallback plain text
       html: html,
     });
-    console.log(`Email sent to ${order.email} for order ${order.orderNumber}`);
+    
+    if (error) {
+      console.error('Failed to send email:', error);
+    } else {
+      console.log(`Email sent to ${order.email} for order ${order.orderNumber}`);
+    }
   } catch (emailError) {
     console.error('Failed to send email:', emailError);
     // Don't throw here, we don't want to break the UI if email fails, just log it

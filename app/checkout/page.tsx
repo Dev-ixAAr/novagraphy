@@ -21,6 +21,7 @@ export default function CheckoutPage() {
     phone: '',
     address: '',
     city: '',
+    district: '',
     postalCode: ''
   });
 
@@ -45,15 +46,20 @@ export default function CheckoutPage() {
 
   // Dynamic delivery charge logic
   useEffect(() => {
-    const city = shippingDetails.city.trim().toLowerCase();
-    if (city === '') {
+    const district = shippingDetails.district.trim().toLowerCase();
+    
+    // Fallbacks provided for constants as requested
+    const shippingRateColombo = parseFloat(process.env.NEXT_PUBLIC_SHIPPING_COLOMBO || "1.20");
+    const shippingRateOutside = parseFloat(process.env.NEXT_PUBLIC_SHIPPING_OUTSIDE || "2.00");
+
+    if (district === '') {
       setDeliveryCharge(0);
-    } else if (city.includes('colombo')) {
-      setDeliveryCharge(5.00);
+    } else if (district === 'colombo') {
+      setDeliveryCharge(shippingRateColombo);
     } else {
-      setDeliveryCharge(10.00);
+      setDeliveryCharge(shippingRateOutside);
     }
-  }, [shippingDetails.city]);
+  }, [shippingDetails.district]);
 
   // ✅ Auto-submit PayHere form when data is ready
   // Note: Cart is NOT cleared here — it's cleared on the /success page after confirmed payment.
@@ -77,7 +83,7 @@ export default function CheckoutPage() {
   // ✅ Handle Place Order — creates order, then redirects to PayHere
   const handlePlaceOrder = async () => {
     // Basic validation
-    if (!shippingDetails.firstName || !shippingDetails.email || !shippingDetails.address || !shippingDetails.city) {
+    if (!shippingDetails.firstName || !shippingDetails.email || !shippingDetails.address || !shippingDetails.city || !shippingDetails.district) {
       setError('Please fill in all required fields.');
       return;
     }
@@ -97,6 +103,7 @@ export default function CheckoutPage() {
         phone: shippingDetails.phone || undefined,
         address: shippingDetails.address,
         city: shippingDetails.city,
+        district: shippingDetails.district,
         postalCode: shippingDetails.postalCode || undefined,
         items: cartItems.map((item) => ({
           productId: item.productId || item.id.split('-')[0] || item.id,
@@ -207,13 +214,10 @@ export default function CheckoutPage() {
                 />
               </div>
 
-              {/* Location Fields */}
+              {/* Location Fields 1: City & Postal Code */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6">
                 <div className="flex flex-col gap-2 relative group">
-                  <div className="flex justify-between items-center">
-                    <label htmlFor="city" className="text-xs uppercase tracking-wider font-medium text-zinc-500 dark:text-zinc-400">City</label>
-                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500">Calculates delivery fee</span>
-                  </div>
+                  <label htmlFor="city" className="text-xs uppercase tracking-wider font-medium text-zinc-500 dark:text-zinc-400">City</label>
                   <input
                     type="text"
                     id="city"
@@ -221,7 +225,7 @@ export default function CheckoutPage() {
                     value={shippingDetails.city}
                     onChange={handleInputChange}
                     className="w-full bg-transparent border-b border-black/20 dark:border-white/20 py-2 text-zinc-900 dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700/50 focus:outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors rounded-none"
-                    placeholder="Colombo"
+                    placeholder="Dehiwala"
                   />
                 </div>
                 <div className="flex flex-col gap-2 relative group">
@@ -236,6 +240,48 @@ export default function CheckoutPage() {
                     placeholder="00100"
                   />
                 </div>
+              </div>
+
+              {/* District Field */}
+              <div className="flex flex-col gap-2 relative group">
+                <div className="flex justify-between items-center">
+                  <label htmlFor="district" className="text-xs uppercase tracking-wider font-medium text-zinc-500 dark:text-zinc-400">District</label>
+                  <span className="text-[10px] text-zinc-400 dark:text-zinc-500">Calculates delivery fee</span>
+                </div>
+                <select
+                  id="district"
+                  name="district"
+                  value={shippingDetails.district}
+                  onChange={handleInputChange as any}
+                  className="w-full bg-transparent border-b border-black/20 dark:border-white/20 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors rounded-none appearance-none"
+                >
+                  <option value="" disabled className="text-zinc-500 bg-white dark:bg-zinc-900">Select District</option>
+                  <option value="Ampara" className="bg-white dark:bg-zinc-900">Ampara</option>
+                  <option value="Anuradhapura" className="bg-white dark:bg-zinc-900">Anuradhapura</option>
+                  <option value="Badulla" className="bg-white dark:bg-zinc-900">Badulla</option>
+                  <option value="Batticaloa" className="bg-white dark:bg-zinc-900">Batticaloa</option>
+                  <option value="Colombo" className="bg-white dark:bg-zinc-900">Colombo</option>
+                  <option value="Galle" className="bg-white dark:bg-zinc-900">Galle</option>
+                  <option value="Gampaha" className="bg-white dark:bg-zinc-900">Gampaha</option>
+                  <option value="Hambantota" className="bg-white dark:bg-zinc-900">Hambantota</option>
+                  <option value="Jaffna" className="bg-white dark:bg-zinc-900">Jaffna</option>
+                  <option value="Kalutara" className="bg-white dark:bg-zinc-900">Kalutara</option>
+                  <option value="Kandy" className="bg-white dark:bg-zinc-900">Kandy</option>
+                  <option value="Kegalle" className="bg-white dark:bg-zinc-900">Kegalle</option>
+                  <option value="Kilinochchi" className="bg-white dark:bg-zinc-900">Kilinochchi</option>
+                  <option value="Kurunegala" className="bg-white dark:bg-zinc-900">Kurunegala</option>
+                  <option value="Mannar" className="bg-white dark:bg-zinc-900">Mannar</option>
+                  <option value="Matale" className="bg-white dark:bg-zinc-900">Matale</option>
+                  <option value="Matara" className="bg-white dark:bg-zinc-900">Matara</option>
+                  <option value="Moneragala" className="bg-white dark:bg-zinc-900">Moneragala</option>
+                  <option value="Mullaitivu" className="bg-white dark:bg-zinc-900">Mullaitivu</option>
+                  <option value="Nuwara Eliya" className="bg-white dark:bg-zinc-900">Nuwara Eliya</option>
+                  <option value="Polonnaruwa" className="bg-white dark:bg-zinc-900">Polonnaruwa</option>
+                  <option value="Puttalam" className="bg-white dark:bg-zinc-900">Puttalam</option>
+                  <option value="Ratnapura" className="bg-white dark:bg-zinc-900">Ratnapura</option>
+                  <option value="Trincomalee" className="bg-white dark:bg-zinc-900">Trincomalee</option>
+                  <option value="Vavuniya" className="bg-white dark:bg-zinc-900">Vavuniya</option>
+                </select>
               </div>
             </form>
           </div>
@@ -282,7 +328,7 @@ export default function CheckoutPage() {
                 <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
                   <span className="text-sm">Delivery Fee</span>
                   <span className="font-medium text-zinc-900 dark:text-white">
-                    {shippingDetails.city.trim() === '' 
+                    {shippingDetails.district.trim() === '' 
                       ? "Pending" 
                       : `$${deliveryCharge.toFixed(2)}`
                     }
