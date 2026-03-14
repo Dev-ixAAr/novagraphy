@@ -4,6 +4,21 @@ import { Plus, Trash2, User, Star } from 'lucide-react';
 import Image from 'next/image';
 import { deleteTeamMember } from './actions';
 
+// Helper to fix malformed image URLs from the database
+function sanitizeImageUrl(url: string | null | undefined): string {
+    if (!url) return '';
+    if (url.includes('/_next/image?url=')) {
+        try {
+            const urlObj = new URL(url);
+            const encodedUrl = urlObj.searchParams.get('url');
+            if (encodedUrl) return decodeURIComponent(encodedUrl);
+        } catch (e) {
+            console.error('Failed to parse image URL:', url);
+        }
+    }
+    return url;
+}
+
 export default async function TeamPage() {
   const members = await prisma.teamMember.findMany({
     orderBy: { sortOrder: 'asc' },
@@ -46,7 +61,7 @@ export default async function TeamPage() {
                     <td className="px-6 py-4 w-20">
                     <div className="w-12 h-12 rounded-full bg-[#0f1115] border border-gray-800 overflow-hidden flex items-center justify-center">
                         {member.img ? (
-                        <Image src={member.img} alt={member.name} width={48} height={48} className="w-full h-full object-cover" />
+                        <Image src={sanitizeImageUrl(member.img)} alt={member.name} width={48} height={48} className="w-full h-full object-cover" />
                         ) : (
                         <User className="text-gray-600 w-5 h-5" />
                         )}
